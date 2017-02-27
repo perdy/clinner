@@ -1,0 +1,10 @@
+include LICENSE
+include CHANGELOG
+include README.rst
+include CONTRIBUTORS.rst
+include requirements.txt
+include runtests.py
+graft clinner
+graft tests
+global-exclude __pycache__
+global-exclude *.py[co]
