@@ -8,8 +8,6 @@ from pip.download import PipSession
 from pip.req import parse_requirements as requirements
 from setuptools import Command, setup
 
-from runtests import main
-
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 if sys.version_info[0] == 2:
@@ -55,6 +53,7 @@ class Test(Command):
         pass
 
     def run(self):
+        from runtests import main
         return main()
 
 
@@ -114,7 +113,6 @@ setup(
     zip_safe=False,
     keywords=_KEYWORDS,
     classifiers=_CLASSIFIERS,
-    test_suite='nose.collector',
     cmdclass={
         'test': Test,
         'dist': Dist,
