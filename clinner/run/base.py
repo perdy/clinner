@@ -38,7 +38,7 @@ class MainMeta(ABCMeta):
 class BaseMain(metaclass=MainMeta):
     def __init__(self):
         self.builder = CommandBuilder()
-        self.args = self.parse_arguments()
+        self.args, self.sub_args = self.parse_arguments()
 
         # Load settings
         self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
@@ -67,13 +67,13 @@ class BaseMain(metaclass=MainMeta):
         # Create subparser for each command
         subparsers = parser.add_subparsers(title='Commands', dest='command')
         for cmd_name, cmd in command.register.items():
-            p = subparsers.add_parser(cmd_name, **cmd['parser'])
+            p = subparsers.add_parser(cmd_name, **cmd['parser'], add_help=False)
             for argument in cmd['arguments']:
                 p.add_argument(*argument)
 
-        parser.add_argument('args', help='Command args', nargs=argparse.REMAINDER, type=str)
+        # parser.add_argument('args', help='Command args', nargs=argparse.REMAINDER, type=str)
 
-        return parser.parse_args()
+        return parser.parse_known_args()
 
     def run_command(self, input_command, *args, **kwargs):
         """
@@ -109,7 +109,7 @@ class BaseMain(metaclass=MainMeta):
     def run(self):
         cli.print_header(command=self.args.command, settings=self.settings)
 
-        return_code = self.run_command(self.args.command, *self.args.args)
+        return_code = self.run_command(self.args.command, *self.sub_args)
 
         cli.print_return(return_code)
         return return_code

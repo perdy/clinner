@@ -1,5 +1,4 @@
 import shlex
-from configparser import ConfigParser
 from typing import Callable, List
 
 from clinner.command import command
@@ -23,7 +22,7 @@ class Builder:
         :return: Method itself.
         """
         try:
-            return command.register[name]['func']
+            return command.register[name]['callable']
         except KeyError:
             raise WrongCommandError(name)
 
