@@ -37,7 +37,6 @@ class Dist(Command):
             shutil.rmtree('dist', ignore_errors=True)
             shutil.rmtree('clinner.egg-info', ignore_errors=True)
 
-        self.run_command('test')
         self.run_command('sdist')
         self.run_command('bdist_wheel')
 
@@ -80,12 +79,17 @@ _CLASSIFIERS = (
 
 _KEYWORDS = ' '.join([
     'python',
+    'command',
+    'cli',
+    'interface',
+    'run',
+    'script',
 ])
 
 setup(
     name='clinner',
     version='0.1.0',
-    description='command Line Interface builder that helps creating an entry point for your application.',
+    description='Command Line Interface builder that helps creating an entry point for your application.',
     long_description=_LONG_DESCRIPTION,
     author='José Antonio Perdiguero López',
     author_email='perdy.hh@gmail.com',
@@ -107,7 +111,8 @@ setup(
             'twine',
             'bumpversion',
             'pre-commit',
-        ] + _TESTS_REQUIRES
+        ] + _TESTS_REQUIRES,
+        'test': _TESTS_REQUIRES,
     },
     license='GPLv3',
     zip_safe=False,

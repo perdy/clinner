@@ -1,20 +1,27 @@
+from enum import Enum
 from functools import partial, update_wrapper
 
 from clinner.utils.collections import Register
 
-__all__ = ['command']
+__all__ = ['command', 'Type']
 
 
 class CommandRegister(Register):
     """
     Register for commands.
     """
-    def register(self, func, *args, **kwargs):
+    def register(self, func, command_type, *args, **kwargs):
         self[func.__name__] = {
             'callable': func,
+            'type': command_type,
             'arguments': args,
             'parser': kwargs,
         }
+
+
+class Type(Enum):
+    python = 'python'
+    bash = 'bash'
 
 
 class command:  # noqa
@@ -54,16 +61,16 @@ class command:  # noqa
 
         if func is not None and callable(func) and len(args) == 0 and len(kwargs) == 0:
             # Full initialization decorator
-            self._decorate(func)
+            self._decorate(func, command_type=Type.python)
         else:
             # Partial initialization decorator
             self.func = None
 
-    def _decorate(self, func, *args, **kwargs):
+    def _decorate(self, func, command_type, *args, **kwargs):
         self.func = func
         update_wrapper(self, func)
 
-        self.register.register(func, *args, **kwargs)
+        self.register.register(func, command_type, *args, **kwargs)
 
     def __get__(self, instance, owner=None):
         """

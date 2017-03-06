@@ -1,18 +1,20 @@
 import argparse
+import multiprocessing
 import os
 import subprocess
 from abc import ABCMeta
 
 from clinner.builder import Builder as CommandBuilder
 from clinner.cli import cli
-from clinner.command import command
+from clinner.command import command, Type
+from clinner.exceptions import CommandTypeError
 from clinner.settings import settings
 
 __all__ = ['MainMeta', 'BaseMain']
 
 
 class MainMeta(ABCMeta):
-    def __new__(mcs, name, bases, namespace):
+    def __new__(mcs, name, bases, namespace):  # noqa
         def inject(self):
             """
             Add all environment variables defined in all inject methods.
@@ -75,6 +77,45 @@ class BaseMain(metaclass=MainMeta):
 
         return parser.parse_known_args()
 
+    def run_python(self, cmd):
+        """
+        Run a python command in a different process.
+
+        :param cmd: Python command.
+        :return: Command return code.
+        """
+        cli.logger.debug('- {}'.format((str(cmd.__qualname__))))
+
+        # Run command
+        p = multiprocessing.Process(target=cmd)
+        p.start()
+        while p.exitcode is None:
+            try:
+                p.join()
+            except KeyboardInterrupt:
+                pass
+
+        return p.exitcode
+
+    def run_bash(self, cmd):
+        """
+        Run a bash command in a different process.
+
+        :param cmd: Bash command.
+        :return: Command return code.
+        """
+        cli.logger.debug('- {}'.format((str(cmd))))
+
+        # Run command
+        p = subprocess.Popen(args=cmd)
+        while p.returncode is None:
+            try:
+                p.wait()
+            except KeyboardInterrupt:
+                pass
+
+        return p.returncode
+
     def run_command(self, input_command, *args, **kwargs):
         """
         Run the given command, building it with arguments.
@@ -89,16 +130,13 @@ class BaseMain(metaclass=MainMeta):
 
         cli.logger.debug('Running commands:') if commands else None
         return_code = 0
-        for c in commands:
-            cli.logger.debug('- {}'.format((str(c))))
-            # Run command
-            p = subprocess.Popen(args=c)
-            while p.returncode is None:
-                try:
-                    p.wait()
-                except KeyboardInterrupt:
-                    pass
-            return_code = p.returncode
+        for c, c_type in commands:
+            if c_type == Type.python:
+                self.run_python(c)
+            elif c_type == Type.bash:
+                self.run_bash(c)
+            else:
+                raise CommandTypeError(c_type)
 
             # Break on non-zero exit code.
             if return_code != 0:
@@ -113,4 +151,3 @@ class BaseMain(metaclass=MainMeta):
 
         cli.print_return(return_code)
         return return_code
-
