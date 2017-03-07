@@ -77,7 +77,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
         cli.print_header(command=self.args.command, settings=self.settings)
 
         if self._health_check():
-            return_code = self.run_command(self.args.command, *self.args.args)
+            return_code = self.run_command(self.args.command, *self.sub_args)
         else:
             return_code = 1
 

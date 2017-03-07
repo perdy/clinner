@@ -8,3 +8,7 @@ class WrongResourceError(KeyError):
 
 class CommandTypeError(TypeError):
     pass
+
+
+class CommandArgParseError(ValueError):
+    pass

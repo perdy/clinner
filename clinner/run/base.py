@@ -7,7 +7,7 @@ from abc import ABCMeta
 from clinner.builder import Builder as CommandBuilder
 from clinner.cli import cli
 from clinner.command import command, Type
-from clinner.exceptions import CommandTypeError
+from clinner.exceptions import CommandTypeError, CommandArgParseError
 from clinner.settings import settings
 
 __all__ = ['MainMeta', 'BaseMain']
@@ -71,9 +71,21 @@ class BaseMain(metaclass=MainMeta):
         for cmd_name, cmd in command.register.items():
             p = subparsers.add_parser(cmd_name, **cmd['parser'], add_help=False)
             for argument in cmd['arguments']:
-                p.add_argument(*argument)
+                try:
+                    if len(argument) == 2:
+                        args, kwargs = argument
+                    elif len(argument) == 1:
+                        args = argument[0]
+                        kwargs = {}
+                    else:
+                        args, kwargs = None, None
 
-        # parser.add_argument('args', help='Command args', nargs=argparse.REMAINDER, type=str)
+                    assert isinstance(args, (tuple, list))
+                    assert isinstance(kwargs, dict)
+                except AssertionError:
+                    raise CommandArgParseError(str(argument))
+                else:
+                    p.add_argument(*args, **kwargs)
 
         return parser.parse_known_args()
 
@@ -84,7 +96,7 @@ class BaseMain(metaclass=MainMeta):
         :param cmd: Python command.
         :return: Command return code.
         """
-        cli.logger.debug('- {}'.format((str(cmd.__qualname__))))
+        cli.logger.debug('- [Python] %s.%s', str(cmd.__module__), str(cmd.__qualname__))
 
         # Run command
         p = multiprocessing.Process(target=cmd)
@@ -104,7 +116,7 @@ class BaseMain(metaclass=MainMeta):
         :param cmd: Bash command.
         :return: Command return code.
         """
-        cli.logger.debug('- {}'.format((str(cmd))))
+        cli.logger.debug('- [Bash] %s', str(cmd))
 
         # Run command
         p = subprocess.Popen(args=cmd)
@@ -126,17 +138,17 @@ class BaseMain(metaclass=MainMeta):
         :return:
         """
         # Get list of commands
-        commands = self.builder.build_command(input_command, *args, **kwargs)
+        commands, command_type = self.builder.build_command(input_command, *args, **kwargs)
 
         cli.logger.debug('Running commands:') if commands else None
         return_code = 0
-        for c, c_type in commands:
-            if c_type == Type.python:
+        for c in commands:
+            if command_type == Type.python:
                 self.run_python(c)
-            elif c_type == Type.bash:
+            elif command_type == Type.bash:
                 self.run_bash(c)
             else:
-                raise CommandTypeError(c_type)
+                raise CommandTypeError(command_type)
 
             # Break on non-zero exit code.
             if return_code != 0:
@@ -147,7 +159,7 @@ class BaseMain(metaclass=MainMeta):
     def run(self):
         cli.print_header(command=self.args.command, settings=self.settings)
 
-        return_code = self.run_command(self.args.command, *self.sub_args)
+        return_code = self.run_command(self.args.command, *self.sub_args, **vars(self.args))
 
         cli.print_return(return_code)
         return return_code

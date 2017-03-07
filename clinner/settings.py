@@ -25,7 +25,6 @@ class reset:  # noqa
 
 
 class Settings:
-    bin = {}
     default_args = {}
     vault = {}
 
@@ -40,7 +39,6 @@ class Settings:
         Reset settings to default values.
         """
         self.vault = {}
-        self.bin = {}
         self.default_args = {}
 
     @staticmethod
@@ -91,7 +89,6 @@ class Settings:
 
         # Builder args
         self.default_args = self.get(module, 'clinner_default_args', {})
-        self.bin = self.get(module, 'clinner_bin', {})
 
         # Vault
         self.vault = self.get(module, 'clinner_vault', {})
