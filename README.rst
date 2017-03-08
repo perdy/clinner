@@ -2,7 +2,7 @@
 Clinner
 =======
 
-:Version: 0.2.0
+:Version: 0.1.0
 :Status: Production/Stable
 :Author: José Antonio Perdiguero López
 
@@ -37,6 +37,64 @@ Quick start
     if __name__ == '__main__':
         sys.exit(Main().run())
 
+Commands
+========
+Commands are declared using a decorator to register given functions. Commands are functions with the follow parameters:
+
+    func
+        Function that will be called when command would be executed.
+
+    command_type
+        Type of the command, could be a *bash* or *python* command.
+
+    args
+        Parser arguments for this command.
+
+    parser_opts
+        Command subparser's keywords, such as description.
+
+This decorator allows to be used as a common decorator without arguments, where default type (*python*) will be used:
+
+.. code:: python
+    @command
+    def foobar(bar):
+        pass
+
+Or specifying the type:
+
+.. code:: python
+    @command(command_type=Type.python)
+    def foobar(bar):
+        pass
+
+But also is possible to provide command line arguments, as expected by argparse.ArgumentParser.add_argument:
+
+.. code:: python
+    @command(args=((('-f', '--foo'), {'help': 'Foo argument that does nothing'}),                   # Command argument
+                   (('--bar',), {'action': 'store_true', 'help': 'Bar argument stored as True'})),  # Another argument
+             parser_opts={'title': 'foobar_command', 'help': 'Help for foobar_command'})            # Parser parameters
+    def foobar(*args, **kwargs):
+        pass
+
+All commands will be registered in a command register that can be accessed through ``command.register``. Each entry in
+this register is a dictionary with the fields declared at the beginning of this section.
+
+Main
+====
+
+A main class is defined to ease the creation of command line applications. This class follows the process:
+
+1. Create a parser using ``argparse.ArgumentParser`` for the application:
+
+    a) Calling all ``add_arguments(parser)`` methods from all super classes, e.g: ``clinner.mixins.HealthCheckMixin``.
+    b) Addding a subparser for each command with their specific arguments.
+
+2. Parse arguments using the argument parser created previously.
+
+3. Load settings module from **CLINNER_SETTINGS** environment variable. More details below.
+
+4. Inject variables into environment calling all super classes methods whose name starts with ``inject_``. Again, e.g: ``clinner.mixins.VaultMixin``.
+
 Settings
 ========
 
@@ -57,7 +115,7 @@ Default arguments for commands. Let a command ``foo`` declared:
 Vault
 -----
 
-Vault arguments to retrieve secrets and inject them as environment variables:
+Vault arguments to retrieve secrets from this service and inject them as environment variables:
 
 .. code:: python
     vault = {

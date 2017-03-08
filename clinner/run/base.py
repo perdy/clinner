@@ -2,7 +2,7 @@ import argparse
 import multiprocessing
 import os
 import subprocess
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 
 from clinner.builder import Builder as CommandBuilder
 from clinner.cli import cli
@@ -33,14 +33,14 @@ class MainMeta(ABCMeta):
                     getattr(base, 'add_arguments')(self, parser)
 
         namespace['inject'] = inject
-        namespace['add_arguments'] = add_arguments
+        namespace['_add_arguments'] = add_arguments
         return super(MainMeta, mcs).__new__(mcs, name, bases, namespace)
 
 
 class BaseMain(metaclass=MainMeta):
     def __init__(self):
         self.builder = CommandBuilder()
-        self.args, self.sub_args = self.parse_arguments()
+        self.args, self.unknown_args = self.parse_arguments()
 
         # Load settings
         self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
@@ -53,14 +53,12 @@ class BaseMain(metaclass=MainMeta):
         # Inject parameters related to current stage as environment variables
         self.inject()
 
-    def parse_arguments(self):
+    def add_arguments(self, parser: argparse.ArgumentParser):
         """
-        command Line application arguments.
+        Add arguments to parser.
+
+        :param parser: Parser
         """
-        parser = argparse.ArgumentParser()
-
-        self.add_arguments(parser)
-
         parser.add_argument('-s', '--settings',
                             help='Module or object with Clinner settings in format "package.module[:Object]"')
         parser.add_argument('-q', '--quiet', help='Quiet mode. No standard output other than executed application',
@@ -69,7 +67,12 @@ class BaseMain(metaclass=MainMeta):
         # Create subparser for each command
         subparsers = parser.add_subparsers(title='Commands', dest='command')
         for cmd_name, cmd in command.register.items():
-            p = subparsers.add_parser(cmd_name, **cmd['parser'], add_help=False)
+
+            subparser_opts = cmd['parser']
+            if cmd['type'] == Type.bash:
+                subparser_opts['add_help'] = False
+
+            p = subparsers.add_parser(cmd_name, **subparser_opts)
             for argument in cmd['arguments']:
                 try:
                     if len(argument) == 2:
@@ -86,6 +89,15 @@ class BaseMain(metaclass=MainMeta):
                     raise CommandArgParseError(str(argument))
                 else:
                     p.add_argument(*args, **kwargs)
+
+    def parse_arguments(self):
+        """
+        command Line application arguments.
+        """
+        parser = argparse.ArgumentParser()
+
+        # Call inner method that adds arguments from all classes (defined in metaclass)
+        self._add_arguments(parser)
 
         return parser.parse_known_args()
 
@@ -156,10 +168,6 @@ class BaseMain(metaclass=MainMeta):
 
         return return_code
 
+    @abstractmethod
     def run(self):
-        cli.print_header(command=self.args.command, settings=self.settings)
-
-        return_code = self.run_command(self.args.command, *self.sub_args, **vars(self.args))
-
-        cli.print_return(return_code)
-        return return_code
+        pass

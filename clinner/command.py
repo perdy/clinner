@@ -45,22 +45,21 @@ class command:  # noqa
         without arguments:
 
         @command
-        def foobar(*args, **kwargs):
+        def foobar(bar):
             pass
 
         But also is possible to provide command line arguments, as expected by argparse.ArgumentParser.add_argument:
-        @command(args=((('-f', '--foo'), {'type': int, 'help': 'Foo argument that does nothing'}),  # Command argument
-                       (('--bar',), {'action': 'store_true', 'help': 'Bar argument stored as True'})),  # Another arg
-                 parser_opts={'title': 'foobar_command', 'help': 'Help for foobar_command'})  # Parser parameters
+        @command((('-f', '--foo'), {help='Foo argument that does nothing'}),  # Command argument
+                 (('--bar',), {action='store_true', help='Bar argument stored as True'})  # Another command argument
+                 title='foobar_command', help='Help for foobar_command')  # Parser parameters
         def foobar(*args, **kwargs):
             pass
 
-        The signature for command functions is always ``function(*args, *kwargs)`` where args are unknown arguments and
-        kwargs all values for explicit parser.
-
-        Using last example with a call ``run.py foobar --foo=1 --bar --other=2`` the expected args will be:
-        * args: ('--other', '2')
-        * kwargs: {'foo': 1, 'bar': True}
+        For last, is possible to decorate functions or class methods:
+        class Foo:
+            @command
+            def bar(self):
+                pass
 
         :param func: Function or class method to be decorated.
         :param args: argparse.ArgumentParser.add_argument args.

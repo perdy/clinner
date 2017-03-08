@@ -58,26 +58,31 @@ class HealthCheckMixin(metaclass=ABCMeta):
         :return: True if health check was successful. False otherwise.
         """
         if self.args.retry:
+            health = False
             cli.logger.info('Performing healthcheck...')
             timeout = random()
 
-            for i in range(self.args.retry):
+            for i in (i for i in range(self.args.retry) if not health):
                 if self.health_check():
                     cli.logger.warning('Health check failed, retrying ({}/{})'.format(i + 1, self.args.retry))
                     time.sleep(timeout)
-                    timeout *= 2
+                    timeout *= 2.
                 else:
                     # Healthcheck successful
-                    return True
+                    health = True
 
-        cli.logger.error('Retry attempts exceeded, health check failed')
-        return False
+            if not health:
+                cli.logger.error('Retry attempts exceeded, health check failed')
+        else:
+            health = True
+
+        return health
 
     def run(self):
         cli.print_header(command=self.args.command, settings=self.settings)
 
         if self._health_check():
-            return_code = self.run_command(self.args.command, *self.sub_args)
+            return_code = self.run_command(self.args.command, *self.unknown_args, **vars(self.args))
         else:
             return_code = 1
 
