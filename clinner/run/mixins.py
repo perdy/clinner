@@ -1,11 +1,11 @@
 import os
 import time
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from random import random
 
-from clinner import vault
-from clinner.cli import cli
+import hvac
 
+from clinner.cli import cli
 from clinner.settings import settings
 
 __all__ = ['VaultMixin', 'HealthCheckMixin']
@@ -17,21 +17,19 @@ class VaultMixin:
         Get app and user id and injects all variables defined at Vault secret as environment variables.
         """
         if settings.vault:
-            try:
-                with open(settings.vault['app_id_path']) as f:
-                    app_id = f.readline()
-            except FileNotFoundError:
-                app_id = None
+            vc = hvac.Client(url=settings.vault['url'])
 
-            try:
-                with open(settings.vault['user_id_path']) as f:
-                    user_id = f.readline()
-            except FileNotFoundError:
-                user_id = None
+            if 'app_id' in settings.vault and 'user_id' in settings.vault:
+                cli.logger.debug('Vault auth using AppID')
+                vc.auth_app_id(settings.vault['app_id'], settings.vault['user_id'])
+            elif 'role_id' in settings.vault and 'secret_id' in settings.vault:
+                cli.logger.debug('Vault auth using AppRole')
+                vc.auth_approle(settings.vault['role_id'], settings.vault['secret_id'])
+            else:
+                cli.logger.warning('Vault authentication parameters not provided')
 
-            vc = vault.Client(settings.vault['url'], app_id, user_id)
-            if vc.connected:
-                secrets = vc.get_secret(settings.vault['secrets_path'])
+            if vc.is_authenticated():
+                secrets = vc.read(settings.vault['secrets_path'])
                 os.environ.update(secrets)
             else:
                 cli.logger.warning('Vault client is not connected')
