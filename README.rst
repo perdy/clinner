@@ -91,9 +91,10 @@ A main class is defined to ease the creation of command line applications. This 
 
 2. Parse arguments using the argument parser created previously.
 
-3. Load settings module from **CLINNER_SETTINGS** environment variable. More details below.
+3. Inject variables into environment calling all super classes methods whose name starts with ``inject_``. Again, e.g: ``clinner.mixins.VaultMixin``.
 
-4. Inject variables into environment calling all super classes methods whose name starts with ``inject_``. Again, e.g: ``clinner.mixins.VaultMixin``.
+4. Load settings module from **CLINNER_SETTINGS** environment variable. More details below.
+
 
 Settings
 ========
@@ -159,3 +160,4 @@ Full code example:
 
     if __name__ == '__main__':
         sys.exit(Main().run())
+

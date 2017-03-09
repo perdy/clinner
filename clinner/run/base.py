@@ -28,9 +28,12 @@ class MainMeta(ABCMeta):
 
             :param parser: Parser.
             """
-            for base in bases:
+            for base in reversed(bases):
                 if hasattr(base, 'add_arguments'):
                     getattr(base, 'add_arguments')(self, parser)
+
+            if hasattr(self, 'add_arguments'):
+                self.add_arguments(parser)
 
         namespace['inject'] = inject
         namespace['_add_arguments'] = add_arguments
@@ -41,17 +44,17 @@ class BaseMain(metaclass=MainMeta):
     def __init__(self):
         self.builder = CommandBuilder()
         self.args, self.unknown_args = self.parse_arguments()
+        self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
+
+        # Inject parameters related to current stage as environment variables
+        self.inject()
 
         # Load settings
-        self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
         settings.build_from_module(self.args.settings)
 
         # Apply quiet mode
         if self.args.quiet:
             cli.disable()
-
-        # Inject parameters related to current stage as environment variables
-        self.inject()
 
     def add_arguments(self, parser: argparse.ArgumentParser):
         """
@@ -94,7 +97,7 @@ class BaseMain(metaclass=MainMeta):
         """
         command Line application arguments.
         """
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(conflict_handler='resolve')
 
         # Call inner method that adds arguments from all classes (defined in metaclass)
         self._add_arguments(parser)
