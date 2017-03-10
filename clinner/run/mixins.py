@@ -1,38 +1,10 @@
-import os
 import time
 from abc import ABCMeta, abstractmethod
 from random import random
 
-import hvac
-
 from clinner.cli import cli
-from clinner.settings import settings
 
-__all__ = ['VaultMixin', 'HealthCheckMixin']
-
-
-class VaultMixin:
-    def inject_vault_variables(self):
-        """
-        Get app and user id and injects all variables defined at Vault secret as environment variables.
-        """
-        if settings.vault:
-            vc = hvac.Client(url=settings.vault['url'])
-
-            if 'app_id' in settings.vault and 'user_id' in settings.vault:
-                cli.logger.debug('Vault auth using AppID')
-                vc.auth_app_id(settings.vault['app_id'], settings.vault['user_id'])
-            elif 'role_id' in settings.vault and 'secret_id' in settings.vault:
-                cli.logger.debug('Vault auth using AppRole')
-                vc.auth_approle(settings.vault['role_id'], settings.vault['secret_id'])
-            else:
-                cli.logger.warning('Vault authentication parameters not provided')
-
-            if vc.is_authenticated():
-                secrets = vc.read(settings.vault['secrets_path'])
-                os.environ.update(secrets)
-            else:
-                cli.logger.warning('Vault client is not connected')
+__all__ = ['HealthCheckMixin']
 
 
 class HealthCheckMixin(metaclass=ABCMeta):

@@ -1,8 +1,8 @@
 from clinner.cli import cli
 from clinner.run.base import BaseMain
-from clinner.run.mixins import VaultMixin, HealthCheckMixin
+from clinner.run.mixins import HealthCheckMixin
 
-__all__ = ['Main', 'HealthCheckMain', 'VaultMain']
+__all__ = ['Main', 'HealthCheckMain']
 
 
 class Main(BaseMain):
@@ -33,9 +33,3 @@ class HealthCheckMain(HealthCheckMixin, Main):
     def health_check(self):
         return True
 
-
-class VaultMain(VaultMixin, Main):
-    """
-    Main class with vault behavior that injects variables into environment.
-    """
-    pass
