@@ -22,6 +22,9 @@ class Main(BaseMain):
         cli.print_return(return_code)
         return return_code
 
+    def add_arguments(self, parser: 'argparse.ArgumentParser'):
+        pass
+
 
 class HealthCheckMain(HealthCheckMixin, Main):
     """
