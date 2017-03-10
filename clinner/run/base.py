@@ -28,6 +28,8 @@ class MainMeta(ABCMeta):
 
             :param parser: Parser.
             """
+            self._base_arguments(parser)
+
             for base in reversed(bases):
                 if hasattr(base, 'add_arguments'):
                     getattr(base, 'add_arguments')(self, parser)
@@ -56,7 +58,7 @@ class BaseMain(metaclass=MainMeta):
         if self.args.quiet:
             cli.disable()
 
-    def add_arguments(self, parser: argparse.ArgumentParser):
+    def _base_arguments(self, parser: argparse.ArgumentParser):
         """
         Add arguments to parser.
 
