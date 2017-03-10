@@ -2,7 +2,7 @@
 Clinner
 =======
 
-:Version: 0.3.2
+:Version: 0.4.0
 :Status: Production/Stable
 :Author: José Antonio Perdiguero López
 
