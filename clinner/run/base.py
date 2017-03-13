@@ -164,9 +164,9 @@ class BaseMain(metaclass=MainMeta):
         return_code = 0
         for c in commands:
             if command_type == Type.python:
-                self.run_python(c)
+                return_code = self.run_python(c)
             elif command_type == Type.bash:
-                self.run_bash(c)
+                return_code = self.run_bash(c)
             else:
                 raise CommandTypeError(command_type)
 
