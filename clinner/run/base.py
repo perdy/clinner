@@ -4,7 +4,7 @@ import os
 import subprocess
 from abc import ABCMeta, abstractmethod
 
-from clinner.builder import Builder as CommandBuilder
+from clinner.builder import Builder
 from clinner.cli import cli
 from clinner.command import command, Type
 from clinner.exceptions import CommandTypeError, CommandArgParseError
@@ -44,7 +44,6 @@ class MainMeta(ABCMeta):
 
 class BaseMain(metaclass=MainMeta):
     def __init__(self):
-        self.builder = CommandBuilder()
         self.args, self.unknown_args = self.parse_arguments()
         self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
 
@@ -94,6 +93,10 @@ class BaseMain(metaclass=MainMeta):
                     raise CommandArgParseError(str(argument))
                 else:
                     p.add_argument(*args, **kwargs)
+
+    @abstractmethod
+    def add_arguments(self, parser: argparse.ArgumentParser):
+        pass
 
     def parse_arguments(self):
         """
@@ -155,7 +158,7 @@ class BaseMain(metaclass=MainMeta):
         :return:
         """
         # Get list of commands
-        commands, command_type = self.builder.build_command(input_command, *args, **kwargs)
+        commands, command_type = Builder.build_command(input_command, *args, **kwargs)
 
         cli.logger.debug('Running commands:') if commands else None
         return_code = 0

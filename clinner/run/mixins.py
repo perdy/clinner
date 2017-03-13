@@ -8,7 +8,7 @@ __all__ = ['HealthCheckMixin']
 
 
 class HealthCheckMixin(metaclass=ABCMeta):
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: 'argparse.ArgumentParser'):
         parser.add_argument('-r', '--retry', help='Health check retries before run command. Disabled with 0, max 5.',
                             type=int)
 
@@ -49,6 +49,17 @@ class HealthCheckMixin(metaclass=ABCMeta):
         return health
 
     def run(self):
+        """
+        Run specified command through system arguments.
+
+        Before running the command, a health check function will be called and if result is not successful, the command
+        will be aborted.
+
+        Arguments that have been parsed properly will be passed through **kwargs. Unknown arguments will be passed as a
+        list of strings through *args.
+
+        This method will print a header and the return code.
+        """
         cli.print_header(command=self.args.command, settings=self.settings)
 
         if self._health_check():

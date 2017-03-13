@@ -6,15 +6,15 @@ from clinner.command import command, Type as CommandType
 from clinner.exceptions import CommandTypeError
 from clinner.settings import settings
 
-__all__ = ['builder']
+__all__ = ['Builder']
 
 
 class Builder:
-    def __init__(self):
-        # Load config
-        self.default_args = {k: shlex.split(v) for k, v in settings.default_args.items()}
-
-    def _get_method(self, cmd: Dict[str, Any]) -> Callable[..., List[List[str]]]:
+    """
+    Helper for build commands stored in register.
+    """
+    @staticmethod
+    def _get_method(cmd: Dict[str, Any]) -> Callable[..., List[List[str]]]:
         """
         Get self method given a name. If method isn't found, django_admin will be used as default return value.
 
@@ -29,7 +29,8 @@ class Builder:
 
         return method
 
-    def _build_bash_command(self, method, *args, **kwargs) -> List[List[str]]:
+    @staticmethod
+    def _build_bash_command(method, *args, **kwargs) -> List[List[str]]:
         """
         Build a bash command using given method, args and kwargs. Bash commands should return a list of bash commands
         split by shlex.
@@ -41,7 +42,8 @@ class Builder:
         """
         return method(*args, **kwargs)
 
-    def _build_python_command(self, method, *args, **kwargs) -> List[Callable]:
+    @staticmethod
+    def _build_python_command(method, *args, **kwargs) -> List[Callable]:
         """
         Build a python command using given method, args and kwargs. Python commands will return a python's callable
         partialized with current args and kwargs
@@ -55,7 +57,8 @@ class Builder:
         update_wrapper(cmd, method)
         return [cmd]
 
-    def build_command(self, command_name: str, *args, **kwargs) -> Tuple[List[Union[List[str], Callable]], CommandType]:
+    @staticmethod
+    def build_command(command_name: str, *args, **kwargs) -> Tuple[List[Union[List[str], Callable]], CommandType]:
         """
         Build command given his name and a list of args.
 
@@ -73,16 +76,16 @@ class Builder:
 
         # Get default args if necessary
         if not args:
-            args = self.default_args.get(command_name, [])
+            try:
+                args = shlex.split(settings.default_args[command_name])
+            except KeyError:
+                args = []
 
         if command_type == CommandType.python:
-            built = self._build_python_command(method, *args, **kwargs)
+            built = Builder._build_python_command(method, *args, **kwargs)
         elif command_type == CommandType.bash:
-            built = self._build_bash_command(method, *args, **kwargs)
+            built = Builder._build_bash_command(method, *args, **kwargs)
         else:
             raise CommandTypeError(command_type)
 
         return built, command_type
-
-
-builder = Builder()
