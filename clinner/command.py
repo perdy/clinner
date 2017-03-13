@@ -28,7 +28,7 @@ class CommandRegister(Register):
 
     def __getitem__(self, item):
         if item not in self:
-            raise WrongCommandError('item')
+            raise WrongCommandError(item)
 
         return dict.__getitem__(self, item)
 
