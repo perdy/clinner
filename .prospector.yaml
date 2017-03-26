@@ -11,3 +11,6 @@ ignore-paths:
   - demo
   - build
   - tests
+
+pylint:
+  run: false

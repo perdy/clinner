@@ -1,13 +1,13 @@
 import argparse
-import multiprocessing
 import os
-import subprocess
 from abc import ABCMeta, abstractmethod
+from multiprocessing import Process
+from subprocess import Popen
 
 from clinner.builder import Builder
 from clinner.cli import cli
-from clinner.command import command, Type
-from clinner.exceptions import CommandTypeError, CommandArgParseError
+from clinner.command import Type, command
+from clinner.exceptions import CommandArgParseError, CommandTypeError
 from clinner.settings import settings
 
 __all__ = ['MainMeta', 'BaseMain']
@@ -43,8 +43,8 @@ class MainMeta(ABCMeta):
 
 
 class BaseMain(metaclass=MainMeta):
-    def __init__(self):
-        self.args, self.unknown_args = self.parse_arguments()
+    def __init__(self, args=None):
+        self.args, self.unknown_args = self.parse_arguments(args=args)
         self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
 
         # Inject parameters related to current stage as environment variables
@@ -57,7 +57,7 @@ class BaseMain(metaclass=MainMeta):
         if self.args.quiet:
             cli.disable()
 
-    def _base_arguments(self, parser: argparse.ArgumentParser):
+    def _base_arguments(self, parser: 'argparse.ArgumentParser'):
         """
         Add arguments to parser.
 
@@ -70,6 +70,7 @@ class BaseMain(metaclass=MainMeta):
 
         # Create subparser for each command
         subparsers = parser.add_subparsers(title='Commands', dest='command')
+        subparsers.required = True
         for cmd_name, cmd in command.register.items():
 
             subparser_opts = cmd['parser']
@@ -98,7 +99,7 @@ class BaseMain(metaclass=MainMeta):
     def add_arguments(self, parser: argparse.ArgumentParser):
         pass
 
-    def parse_arguments(self):
+    def parse_arguments(self, args=None):
         """
         command Line application arguments.
         """
@@ -107,19 +108,21 @@ class BaseMain(metaclass=MainMeta):
         # Call inner method that adds arguments from all classes (defined in metaclass)
         self._add_arguments(parser)
 
-        return parser.parse_known_args()
+        return parser.parse_known_args(args=args)
 
-    def run_python(self, cmd):
+    def run_python(self, cmd, *args, **kwargs):
         """
         Run a python command in a different process.
 
         :param cmd: Python command.
+        :param args: List of args passed to Process.
+        :param kwargs: Dict of kwargs passed to Process.
         :return: Command return code.
         """
         cli.logger.debug('- [Python] %s.%s', str(cmd.__module__), str(cmd.__qualname__))
 
         # Run command
-        p = multiprocessing.Process(target=cmd)
+        p = Process(target=cmd, *args, **kwargs)
         p.start()
         while p.exitcode is None:
             try:
@@ -129,17 +132,19 @@ class BaseMain(metaclass=MainMeta):
 
         return p.exitcode
 
-    def run_bash(self, cmd):
+    def run_bash(self, cmd, *args, **kwargs):
         """
         Run a bash command in a different process.
 
         :param cmd: Bash command.
+        :param args: List of args passed to Popen.
+        :param kwargs: Dict of kwargs passed to Popen.
         :return: Command return code.
         """
         cli.logger.debug('- [Bash] %s', str(cmd))
 
         # Run command
-        p = subprocess.Popen(args=cmd)
+        p = Popen(args=cmd, *args, **kwargs)
         while p.returncode is None:
             try:
                 p.wait()
@@ -152,21 +157,21 @@ class BaseMain(metaclass=MainMeta):
         """
         Run the given command, building it with arguments.
 
-        :param input_command:
-        :param args:
-        :param kwargs:
-        :return:
+        :param input_command: Command to execute.
+        :param args: List of args passed to run_<type> command.
+        :param kwargs: Dict of kwargs passed to run_<type> command.
+        :return: Command return code.
         """
         # Get list of commands
-        commands, command_type = Builder.build_command(input_command, *args, **kwargs)
+        commands, command_type = Builder.build_command(input_command, *self.unknown_args, **vars(self.args))
 
         cli.logger.debug('Running commands:') if commands else None
         return_code = 0
         for c in commands:
             if command_type == Type.python:
-                return_code = self.run_python(c)
+                return_code = self.run_python(c, *args, **kwargs)
             elif command_type == Type.bash:
-                return_code = self.run_bash(c)
+                return_code = self.run_bash(c, *args, **kwargs)
             else:
                 raise CommandTypeError(command_type)
 
@@ -177,5 +182,5 @@ class BaseMain(metaclass=MainMeta):
         return return_code
 
     @abstractmethod
-    def run(self):
+    def run(self, *args, **kwargs):
         pass

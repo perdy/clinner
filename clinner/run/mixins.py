@@ -48,7 +48,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
 
         return health
 
-    def run(self):
+    def run(self, *args, **kwargs):
         """
         Run specified command through system arguments.
 
@@ -63,7 +63,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
         cli.print_header(command=self.args.command, settings=self.settings)
 
         if self._health_check():
-            return_code = self.run_command(self.args.command, *self.unknown_args, **vars(self.args))
+            return_code = self.run_command(self.args.command, *args, **kwargs)
         else:
             return_code = 1
 

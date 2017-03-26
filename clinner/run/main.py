@@ -6,7 +6,10 @@ __all__ = ['Main', 'HealthCheckMain']
 
 
 class Main(BaseMain):
-    def run(self):
+    def add_arguments(self, parser):
+        pass
+
+    def run(self, *args, **kwargs):
         """
         Run specified command through system arguments.
 
@@ -17,7 +20,7 @@ class Main(BaseMain):
         """
         cli.print_header(command=self.args.command, settings=self.settings)
 
-        return_code = self.run_command(self.args.command, *self.unknown_args, **vars(self.args))
+        return_code = self.run_command(self.args.command, *args, **kwargs)
 
         cli.print_return(return_code)
         return return_code

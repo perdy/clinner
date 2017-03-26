@@ -46,7 +46,7 @@ class CLI:
         if code == 0:
             self.logger.info('Return code: 0')
         else:
-            self.logger.error('Return code: {:d}'.format(code))
+            self.logger.error('Return code: %d', code)
 
     def print_header(self, **kwargs):
         fields = OrderedDict(sorted(kwargs.items(), key=lambda x: x[0]))

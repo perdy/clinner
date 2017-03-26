@@ -69,9 +69,9 @@ class command:  # noqa
         self.kwargs = parser_opts or {}
         self.command_type = command_type
 
-        if func is not None and callable(func) and len(args) == 0 and len(parser_opts) == 0:
+        if func is not None and callable(func):
             # Full initialization decorator
-            self._decorate(func=func, command_type=self.command_type, args=None, parse_opts=None)
+            self._decorate(func=func, command_type=self.command_type, args=self.args, parse_opts=self.kwargs)
         else:
             # Partial initialization decorator
             self.func = None
