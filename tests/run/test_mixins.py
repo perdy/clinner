@@ -1,36 +1,67 @@
 from unittest.case import TestCase
+from unittest.mock import patch
 
-from clinner.run import BaseMain
-
-
-class Main(BaseMain):
-    def add_arguments(self, parser: 'argparse.ArgumentParser'):
-        pass
-
-    def run(self):
-        pass
+from clinner.command import command
+from clinner.run import HealthCheckMixin
+from clinner.run.main import Main
 
 
-class BaseMainTestCase(TestCase):
+class FooMain(HealthCheckMixin, Main):
+    def health_check(self):
+        return True
+
+
+class HealthCheckMixinTestCase(TestCase):
     def setUp(self):
-        pass
+        command.register.clear()
+        self.cli_patcher = patch('clinner.run.base.CLI')
+        self.cli_patcher.start()
+
+    def test_main_add_arguments(self):
+        @command
+        def foo(*args, **kwargs):
+            pass
+
+        args = ['-r', '3', 'foo']
+        main = FooMain(args)
+
+        self.assertEqual(main.args.retry, 3)
+
+    def test_main_run(self):
+        @command
+        def foo(*args, **kwargs):
+            pass
+
+        args = ['-q', 'foo']
+        main = FooMain(args)
+        result = main.run()
+
+        self.assertEqual(result, 0)
+
+    def test_main_health_check_fails(self):
+        @command
+        def foo(*args, **kwargs):
+            pass
+
+        args = ['-q', '-r', '1', 'foo']
+        main = FooMain(args)
+        main.health_check = lambda: False
+        result = main.run()
+
+        self.assertEqual(result, 1)
+
+    def test_main_skip_health_check(self):
+        @command
+        def foo(*args, **kwargs):
+            pass
+
+        args = ['-q', '-r', '0', 'foo']
+        main = FooMain(args)
+        main.health_check = lambda: False
+        result = main.run()
+
+        self.assertEqual(result, 0)
 
     def tearDown(self):
-        pass
-
-
-class MainTestCase(TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-
-class HealthChechMixin(TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
+        self.cli_patcher.stop()
+        command.register.clear()

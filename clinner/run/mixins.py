@@ -2,8 +2,6 @@ import time
 from abc import ABCMeta, abstractmethod
 from random import random
 
-from clinner.cli import cli
-
 __all__ = ['HealthCheckMixin']
 
 
@@ -19,7 +17,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
 
         :return: True if health check was successful. False otherwise.
         """
-        return True
+        pass
 
     def _health_check(self):
         """
@@ -29,12 +27,12 @@ class HealthCheckMixin(metaclass=ABCMeta):
         """
         if self.args.retry:
             health = False
-            cli.logger.info('Performing healthcheck...')
+            self.cli.logger.info('Performing healthcheck...')
             timeout = random()
 
             for i in (i for i in range(self.args.retry) if not health):
-                if self.health_check():
-                    cli.logger.warning('Health check failed, retrying ({}/{})'.format(i + 1, self.args.retry))
+                if not self.health_check():
+                    self.cli.logger.warning('Health check failed, retrying ({}/{})'.format(i + 1, self.args.retry))
                     time.sleep(timeout)
                     timeout *= 2.
                 else:
@@ -42,7 +40,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
                     health = True
 
             if not health:
-                cli.logger.error('Retry attempts exceeded, health check failed')
+                self.cli.logger.error('Retry attempts exceeded, health check failed')
         else:
             health = True
 
@@ -60,12 +58,12 @@ class HealthCheckMixin(metaclass=ABCMeta):
 
         This method will print a header and the return code.
         """
-        cli.print_header(command=self.args.command, settings=self.settings)
+        self.cli.print_header(command=self.args.command, settings=self.settings)
 
         if self._health_check():
             return_code = self.run_command(self.args.command, *args, **kwargs)
         else:
             return_code = 1
 
-        cli.print_return(return_code)
+        self.cli.print_return(return_code)
         return return_code

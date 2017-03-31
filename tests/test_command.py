@@ -1,0 +1,137 @@
+import sys
+from multiprocessing import Queue
+from unittest.case import TestCase
+from unittest.mock import patch
+
+from clinner.command import Type, command
+from clinner.exceptions import CommandArgParseError, CommandTypeError
+from clinner.run.main import Main
+
+
+class CommandTestCase(TestCase):
+    def setUp(self):
+        sys.argv = ['test']
+        command.register.clear()
+        self.cli_patcher = patch('clinner.run.base.CLI')
+        self.cli_patcher.start()
+
+    def test_command(self):
+        @command
+        def foo(*args, **kwargs):
+            kwargs['q'].put(42)
+
+        queue = Queue()
+        args = ['foo']
+        Main(args).run(q=queue)
+
+        self.assertEqual(queue.get(), 42)
+
+    def test_command_python(self):
+        @command(command_type=Type.python)
+        def foo(*args, **kwargs):
+            kwargs['q'].put(42)
+
+        queue = Queue()
+        args = ['foo']
+        Main(args).run(q=queue)
+
+        self.assertEqual(queue.get(), 42)
+
+    def test_command_with_args(self):
+        @command(command_type=Type.python,
+                 args=((('-b', '--bar'),),))  # args
+        def foo(*args, **kwargs):
+            kwargs['q'].put(kwargs['bar'])
+
+        queue = Queue()
+        args = ['foo', '-b', 'foobar']
+        Main(args).run(q=queue)
+
+        self.assertEqual(queue.get(), 'foobar')
+
+    def test_command_with_args_and_opts(self):
+        @command(command_type=Type.python,
+                 args=((('-b', '--bar'), {'type': int, 'help': 'bar argument'}),))  # args and opts
+        def foo(*args, **kwargs):
+            kwargs['q'].put(kwargs['bar'])
+
+        queue = Queue()
+        args = ['foo', '-b', '3']
+        Main(args).run(q=queue)
+
+        self.assertEqual(queue.get(), 3)
+
+    def test_command_with_wrong_args_number(self):
+        @command(command_type=Type.python,
+                 args=(((1, 2, 3),)))  # wrong args number
+        def foo(*args, **kwargs):
+            kwargs['q'].put(kwargs['bar'])
+
+        args = ['foo']
+        self.assertRaises(CommandArgParseError, Main, args)
+
+    def test_command_with_unknown_args(self):
+        @command  # args
+        def foo(*args, **kwargs):
+            kwargs['q'].put(args[0])
+
+        queue = Queue()
+        args = ['foo', 'foobar']
+        Main(args).run(q=queue)
+
+        self.assertEqual(queue.get(), 'foobar')
+
+    def test_command_bash(self):
+        @command(command_type=Type.bash)
+        def foo(*args, **kwargs):
+            return [['foo']]
+
+        args = ['foo']
+        main = Main(args)
+        with patch('clinner.run.base.Popen') as popen_mock:
+            popen_mock.return_value.returncode = 0
+            main.run()
+
+        self.assertEqual(popen_mock.call_count, 1)
+        self.assertEqual(popen_mock.call_args[1]['args'], ['foo'])
+
+    def test_command_multiple_bash(self):
+        @command(command_type=Type.bash)
+        def foo(*args, **kwargs):
+            return [['foo'], ['bar']]
+
+        args = ['foo']
+        main = Main(args)
+        with patch('clinner.run.base.Popen') as popen_mock:
+            popen_mock.return_value.returncode = 0
+            main.run()
+
+        self.assertEqual(popen_mock.call_count, 2)
+        self.assertEqual(popen_mock.call_args_list[0][1]['args'], ['foo'])
+        self.assertEqual(popen_mock.call_args_list[1][1]['args'], ['bar'])
+
+    def test_command_multiple_bash_failing(self):
+        @command(command_type=Type.bash)
+        def foo(*args, **kwargs):
+            return [['foo'], ['bar']]
+
+        args = ['foo']
+        main = Main(args)
+        with patch('clinner.run.base.Popen') as popen_mock:
+            popen_mock.return_value.returncode = 1
+            main.run()
+
+        self.assertEqual(popen_mock.call_count, 1)
+        self.assertEqual(popen_mock.call_args_list[0][1]['args'], ['foo'])
+
+    def test_command_wrong_type(self):
+        @command(command_type='foo')
+        def foo(*args, **kwargs):
+            pass
+
+        args = ['foo']
+        self.assertRaises(CommandTypeError, Main(args).run, args)
+
+    def tearDown(self):
+        self.cli_patcher.stop()
+        command.register.clear()

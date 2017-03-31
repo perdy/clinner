@@ -1,8 +1,9 @@
 import shlex
 from functools import partial, update_wrapper
-from typing import Callable, List, Any, Dict, Tuple, Union
 
-from clinner.command import command, Type as CommandType
+from typing import Callable, List, Tuple, Union
+
+from clinner.command import Type as CommandType, command
 from clinner.exceptions import CommandTypeError
 from clinner.settings import settings
 
@@ -13,21 +14,6 @@ class Builder:
     """
     Helper for build commands stored in register.
     """
-    @staticmethod
-    def _get_method(cmd: Dict[str, Any]) -> Callable[..., List[List[str]]]:
-        """
-        Get self method given a name. If method isn't found, django_admin will be used as default return value.
-
-        :param cmd: Command registered.
-        :return: Method itself.
-        """
-        method = cmd['callable']
-
-        # Is a class method
-        if cmd['instance']:
-            method = partial(method, cmd['instance'])
-
-        return method
 
     @staticmethod
     def _build_bash_command(method, *args, **kwargs) -> List[List[str]]:

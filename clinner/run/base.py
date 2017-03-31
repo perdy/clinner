@@ -5,7 +5,7 @@ from multiprocessing import Process
 from subprocess import Popen
 
 from clinner.builder import Builder
-from clinner.cli import cli
+from clinner.cli import CLI
 from clinner.command import Type, command
 from clinner.exceptions import CommandArgParseError, CommandTypeError
 from clinner.settings import settings
@@ -44,6 +44,7 @@ class MainMeta(ABCMeta):
 
 class BaseMain(metaclass=MainMeta):
     def __init__(self, args=None):
+        self.cli = CLI()
         self.args, self.unknown_args = self.parse_arguments(args=args)
         self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
 
@@ -55,7 +56,7 @@ class BaseMain(metaclass=MainMeta):
 
         # Apply quiet mode
         if self.args.quiet:
-            cli.disable()
+            self.cli.disable()
 
     def _base_arguments(self, parser: 'argparse.ArgumentParser'):
         """
@@ -119,10 +120,10 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to Process.
         :return: Command return code.
         """
-        cli.logger.debug('- [Python] %s.%s', str(cmd.__module__), str(cmd.__qualname__))
+        self.cli.logger.debug('- [Python] %s.%s', str(cmd.__module__), str(cmd.__qualname__))
 
         # Run command
-        p = Process(target=cmd, *args, **kwargs)
+        p = Process(target=cmd, args=args, kwargs=kwargs)
         p.start()
         while p.exitcode is None:
             try:
@@ -141,7 +142,7 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to Popen.
         :return: Command return code.
         """
-        cli.logger.debug('- [Bash] %s', str(cmd))
+        self.cli.logger.debug('- [Bash] %s', str(cmd))
 
         # Run command
         p = Popen(args=cmd, *args, **kwargs)
@@ -165,7 +166,7 @@ class BaseMain(metaclass=MainMeta):
         # Get list of commands
         commands, command_type = Builder.build_command(input_command, *self.unknown_args, **vars(self.args))
 
-        cli.logger.debug('Running commands:') if commands else None
+        self.cli.logger.debug('Running commands:') if commands else None
         return_code = 0
         for c in commands:
             if command_type == Type.python:

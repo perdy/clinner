@@ -1,4 +1,3 @@
-from clinner.cli import cli
 from clinner.run.base import BaseMain
 from clinner.run.mixins import HealthCheckMixin
 
@@ -6,7 +5,7 @@ __all__ = ['Main', 'HealthCheckMain']
 
 
 class Main(BaseMain):
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: 'argparse.ArgumentParser'):
         pass
 
     def run(self, *args, **kwargs):
@@ -18,11 +17,11 @@ class Main(BaseMain):
 
         This method will print a header and the return code.
         """
-        cli.print_header(command=self.args.command, settings=self.settings)
+        self.cli.print_header(command=self.args.command, settings=self.settings)
 
         return_code = self.run_command(self.args.command, *args, **kwargs)
 
-        cli.print_return(return_code)
+        self.cli.print_return(return_code)
         return return_code
 
 

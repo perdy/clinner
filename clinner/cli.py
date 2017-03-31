@@ -1,8 +1,14 @@
 import logging
 from collections import OrderedDict
-from logging import StreamHandler
 
-__all__ = ['cli']
+try:
+    import colorlog
+
+    _colorlog = True
+except ImportError:  # pragma: no cover
+    _colorlog = False
+
+__all__ = ['CLI']
 
 
 class CLI:
@@ -12,8 +18,7 @@ class CLI:
     SEP = '-' * 70
 
     def __init__(self):
-        try:
-            import colorlog
+        if _colorlog:
             self.handler = colorlog.StreamHandler()
             self.handler.setFormatter(colorlog.ColoredFormatter(
                 '%(log_color)s%(message)s',
@@ -28,9 +33,9 @@ class CLI:
                 },
                 style='%'
             ))
-        except ImportError:
+        else:
             #  Default to basic logging
-            self.handler = StreamHandler()
+            self.handler = logging.StreamHandler()
 
         self.logger = logging.getLogger('cli')
         self.logger.addHandler(self.handler)
@@ -43,21 +48,16 @@ class CLI:
         self.logger.addHandler(self.handler)
 
     def print_return(self, code: int):
-        if code == 0:
-            self.logger.info('Return code: 0')
-        else:
-            self.logger.error('Return code: %d', code)
+        level = logging.INFO if code == 0 else logging.ERROR
+        self.logger.log(level, 'Return code: %d', code)
 
     def print_header(self, **kwargs):
         fields = OrderedDict(sorted(kwargs.items(), key=lambda x: x[0]))
 
-        fmt = '{:<%d} {}' % (max([len(x) for x in fields.keys()]) + 5,)
+        fmt = '{:<%d}: {}' % (max([len(x) for x in fields.keys()]),)
         header_lines = [self.SEP]
         for k, v in fields.items():
-            header_lines.append(fmt.format(k.capitalize() + ':', v))
+            header_lines.append(fmt.format(k.capitalize(), v))
         header_lines.append(self.SEP)
 
         self.logger.info('\n'.join(header_lines))
-
-
-cli = CLI()
