@@ -9,8 +9,9 @@ __all__ = ['command', 'Type']
 
 
 class Type(Enum):
-    python = 'python'
-    bash = 'bash'
+    PYTHON = 'python'
+    SHELL = 'shell'
+    BASH = SHELL
 
 
 class CommandRegister(Register):
@@ -39,7 +40,7 @@ class command:  # noqa
     """
     register = CommandRegister()
 
-    def __init__(self, func=None, command_type=Type.python, args=None, parser_opts=None):
+    def __init__(self, func=None, command_type=Type.PYTHON, args=None, parser_opts=None):
         """
         Decorator to register given functions in a register. This decorator allows to be used as a common decorator
         without arguments:

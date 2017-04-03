@@ -27,7 +27,7 @@ class CommandTestCase(TestCase):
         self.assertEqual(queue.get(), 42)
 
     def test_command_python(self):
-        @command(command_type=Type.python)
+        @command(command_type=Type.PYTHON)
         def foo(*args, **kwargs):
             kwargs['q'].put(42)
 
@@ -38,7 +38,7 @@ class CommandTestCase(TestCase):
         self.assertEqual(queue.get(), 42)
 
     def test_command_with_args(self):
-        @command(command_type=Type.python,
+        @command(command_type=Type.PYTHON,
                  args=((('-b', '--bar'),),))  # args
         def foo(*args, **kwargs):
             kwargs['q'].put(kwargs['bar'])
@@ -50,7 +50,7 @@ class CommandTestCase(TestCase):
         self.assertEqual(queue.get(), 'foobar')
 
     def test_command_with_args_and_opts(self):
-        @command(command_type=Type.python,
+        @command(command_type=Type.PYTHON,
                  args=((('-b', '--bar'), {'type': int, 'help': 'bar argument'}),))  # args and opts
         def foo(*args, **kwargs):
             kwargs['q'].put(kwargs['bar'])
@@ -62,7 +62,7 @@ class CommandTestCase(TestCase):
         self.assertEqual(queue.get(), 3)
 
     def test_command_with_wrong_args_number(self):
-        @command(command_type=Type.python,
+        @command(command_type=Type.PYTHON,
                  args=(((1, 2, 3),)))  # wrong args number
         def foo(*args, **kwargs):
             kwargs['q'].put(kwargs['bar'])
@@ -81,8 +81,8 @@ class CommandTestCase(TestCase):
 
         self.assertEqual(queue.get(), 'foobar')
 
-    def test_command_bash(self):
-        @command(command_type=Type.bash)
+    def test_command_shell(self):
+        @command(command_type=Type.SHELL)
         def foo(*args, **kwargs):
             return [['foo']]
 
@@ -95,8 +95,8 @@ class CommandTestCase(TestCase):
         self.assertEqual(popen_mock.call_count, 1)
         self.assertEqual(popen_mock.call_args[1]['args'], ['foo'])
 
-    def test_command_multiple_bash(self):
-        @command(command_type=Type.bash)
+    def test_command_multiple_shell(self):
+        @command(command_type=Type.SHELL)
         def foo(*args, **kwargs):
             return [['foo'], ['bar']]
 
@@ -110,8 +110,8 @@ class CommandTestCase(TestCase):
         self.assertEqual(popen_mock.call_args_list[0][1]['args'], ['foo'])
         self.assertEqual(popen_mock.call_args_list[1][1]['args'], ['bar'])
 
-    def test_command_multiple_bash_failing(self):
-        @command(command_type=Type.bash)
+    def test_command_multiple_shell_failing(self):
+        @command(command_type=Type.SHELL)
         def foo(*args, **kwargs):
             return [['foo'], ['bar']]
 

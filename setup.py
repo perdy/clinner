@@ -52,7 +52,7 @@ class Test(Command):
         pass
 
     def run(self):
-        from runtests import main
+        from build import main
         return main()
 
 
@@ -111,6 +111,8 @@ setup(
             'twine',
             'bumpversion',
             'pre-commit',
+            'sphinx',
+            'sphinx_rtd_theme'
         ] + _TESTS_REQUIRES,
         'test': _TESTS_REQUIRES,
     },

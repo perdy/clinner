@@ -16,9 +16,9 @@ class Builder:
     """
 
     @staticmethod
-    def _build_bash_command(method, *args, **kwargs) -> List[List[str]]:
+    def _build_shell_command(method, *args, **kwargs) -> List[List[str]]:
         """
-        Build a bash command using given method, args and kwargs. Bash commands should return a list of bash commands
+        Build a shell command using given method, args and kwargs. Bash commands should return a list of bash commands
         split by shlex.
 
         :param method: Command callable.
@@ -67,10 +67,10 @@ class Builder:
             except KeyError:
                 args = []
 
-        if command_type == CommandType.python:
+        if command_type == CommandType.PYTHON:
             built = Builder._build_python_command(method, *args, **kwargs)
-        elif command_type == CommandType.bash:
-            built = Builder._build_bash_command(method, *args, **kwargs)
+        elif command_type == CommandType.SHELL:
+            built = Builder._build_shell_command(method, *args, **kwargs)
         else:
             raise CommandTypeError(command_type)
 

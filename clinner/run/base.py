@@ -68,6 +68,9 @@ class BaseMain(metaclass=MainMeta):
                             help='Module or object with Clinner settings in format "package.module[:Object]"')
         parser.add_argument('-q', '--quiet', help='Quiet mode. No standard output other than executed application',
                             action='store_true')
+        parser.add_argument('--dry-run', action='store_true',
+                            help='Dry run. Skip commands execution, useful to check which commands will be executed '
+                                 'and execution order')
 
         # Create subparser for each command
         subparsers = parser.add_subparsers(title='Commands', dest='command')
@@ -75,7 +78,7 @@ class BaseMain(metaclass=MainMeta):
         for cmd_name, cmd in command.register.items():
 
             subparser_opts = cmd['parser']
-            if cmd['type'] == Type.bash:
+            if cmd['type'] == Type.SHELL:
                 subparser_opts['add_help'] = False
 
             p = subparsers.add_parser(cmd_name, **subparser_opts)
@@ -122,37 +125,47 @@ class BaseMain(metaclass=MainMeta):
         """
         self.cli.logger.debug('- [Python] %s.%s', str(cmd.__module__), str(cmd.__qualname__))
 
-        # Run command
-        p = Process(target=cmd, args=args, kwargs=kwargs)
-        p.start()
-        while p.exitcode is None:
-            try:
-                p.join()
-            except KeyboardInterrupt:
-                pass
+        result = 0
 
-        return p.exitcode
+        if not self.args.dry_run:
+            # Run command
+            p = Process(target=cmd, args=args, kwargs=kwargs)
+            p.start()
+            while p.exitcode is None:
+                try:
+                    p.join()
+                except KeyboardInterrupt:
+                    pass
 
-    def run_bash(self, cmd, *args, **kwargs):
+            result = p.exitcode
+
+        return result
+
+    def run_shell(self, cmd, *args, **kwargs):
         """
-        Run a bash command in a different process.
+        Run a shell command in a different process.
 
-        :param cmd: Bash command.
+        :param cmd: Shell command.
         :param args: List of args passed to Popen.
         :param kwargs: Dict of kwargs passed to Popen.
         :return: Command return code.
         """
-        self.cli.logger.debug('- [Bash] %s', str(cmd))
+        self.cli.logger.debug('- [Shell] %s', ' '.join(cmd))
 
-        # Run command
-        p = Popen(args=cmd, *args, **kwargs)
-        while p.returncode is None:
-            try:
-                p.wait()
-            except KeyboardInterrupt:
-                pass
+        result = 0
 
-        return p.returncode
+        if not self.args.dry_run:
+            # Run command
+            p = Popen(args=cmd, *args, **kwargs)
+            while p.returncode is None:
+                try:
+                    p.wait()
+                except KeyboardInterrupt:
+                    pass
+
+            result = p.returncode
+
+        return result
 
     def run_command(self, input_command, *args, **kwargs):
         """
@@ -169,10 +182,10 @@ class BaseMain(metaclass=MainMeta):
         self.cli.logger.debug('Running commands:') if commands else None
         return_code = 0
         for c in commands:
-            if command_type == Type.python:
+            if command_type == Type.PYTHON:
                 return_code = self.run_python(c, *args, **kwargs)
-            elif command_type == Type.bash:
-                return_code = self.run_bash(c, *args, **kwargs)
+            elif command_type == Type.SHELL:
+                return_code = self.run_shell(c, *args, **kwargs)
             else:
                 raise CommandTypeError(command_type)
 

@@ -1,7 +1,7 @@
 from unittest.case import TestCase
 from unittest.mock import patch
 
-from clinner.command import command
+from clinner.command import command, Type
 from clinner.run.main import Main
 
 
@@ -10,6 +10,11 @@ class FooMain(Main):
     @command
     def foo(*args, **kwargs):
         pass
+
+    @staticmethod
+    @command(command_type=Type.SHELL)
+    def bar(*args, **kwargs):
+        return [[]]
 
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
         parser.add_argument('-f', '--foo', type=int, help='')
@@ -40,6 +45,24 @@ class BaseMainTestCase(TestCase):
         main = FooMain(args)
 
         self.assertEqual(main.cli.disable.call_count, 1)
+
+    def test_dry_run_python(self):
+        args = ['--dry-run', 'foo']
+        main = FooMain(args)
+
+        with patch('clinner.run.base.Process') as process_mock:
+            main.run()
+
+        self.assertEqual(process_mock.call_count, 0)
+
+    def test_dry_run_shell(self):
+        args = ['--dry-run', 'bar']
+        main = FooMain(args)
+
+        with patch('clinner.run.base.Popen') as popen_mock:
+            main.run()
+
+        self.assertEqual(popen_mock.call_count, 0)
 
     def tearDown(self):
         self.cli_patcher.stop()

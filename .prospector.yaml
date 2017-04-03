@@ -11,6 +11,7 @@ ignore-paths:
   - demo
   - build
   - tests
+  - build.py
 
 pylint:
   run: false
