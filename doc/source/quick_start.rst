@@ -1,5 +1,5 @@
 Quick Start
-===========
+***********
 
 1. Install this package using pip:
 

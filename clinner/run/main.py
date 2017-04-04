@@ -1,3 +1,5 @@
+import argparse
+
 from clinner.run.base import BaseMain
 from clinner.run.mixins import HealthCheckMixin
 
@@ -6,14 +8,19 @@ __all__ = ['Main', 'HealthCheckMain']
 
 class Main(BaseMain):
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
+        """
+        Add to parser all necessary arguments for this Main.
+        
+        :param parser: Argument parser.
+        """
         pass
 
     def run(self, *args, **kwargs):
         """
         Run specified command through system arguments.
 
-        Arguments that have been parsed properly will be passed through **kwargs. Unknown arguments will be passed as a
-        list of strings through *args.
+        Arguments that have been parsed properly will be passed through \**kwargs. Unknown arguments will be passed as a
+        list of strings through \*args.
 
         This method will print a header and the return code.
         """

@@ -4,14 +4,14 @@
    contain the root `toctree` directive.
 
 Welcome to Clinner's documentation!
-===================================
+***********************************
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
 Installation
-------------
+============
 .. toctree::
    :maxdepth: 2
 
@@ -19,16 +19,24 @@ Installation
    Configuration<settings.rst>
 
 Clinner
--------
+=======
 .. toctree::
    :maxdepth: 2
 
-   Commands<commands.rst>
+   Define command<command.rst>
    Main classes<main.rst>
    Full examples<examples.rst>
 
-Indices and tables
+Batteries Included
 ==================
+.. toctree::
+   :maxdepth: 2
+
+   Commands<run_commands.rst>
+   Mixins<mixins.rst>
+
+Indices and tables
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`

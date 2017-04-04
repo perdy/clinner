@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 import sys
 
-from clinner.run.commands.nose import nose
-from clinner.run.commands.prospector import prospector
-from clinner.run.commands.sphinx import sphinx
-from clinner.run.commands.tox import tox
-from clinner.run.commands.dist import dist
 from clinner.run import Main
 
 
+class Build(Main):
+    commands = (
+        'clinner.run.commands.nose.nose',
+        'clinner.run.commands.prospector.prospector',
+        'clinner.run.commands.sphinx.sphinx',
+        'clinner.run.commands.tox.tox',
+        'clinner.run.commands.dist.dist',
+    )
+
+
 def main():
-    return Main().run()
+    return Build().run()
 
 
 if __name__ == '__main__':

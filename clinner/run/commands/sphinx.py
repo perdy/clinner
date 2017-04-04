@@ -11,4 +11,7 @@ __all__ = ['sphinx']
                (('--build',), {'help': 'Build dir', 'default': 'doc/build'})),
          parser_opts={'help': 'Sphinx doc'})
 def sphinx(*args, **kwargs):
+    """
+    Run an sphinx command.
+    """
     return [shlex.split('sphinx-build -M %s %s %s' % (kwargs['sphinx_command'], kwargs['source'], kwargs['build']))]

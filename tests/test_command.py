@@ -4,8 +4,30 @@ from unittest.case import TestCase
 from unittest.mock import patch
 
 from clinner.command import Type, command
-from clinner.exceptions import CommandArgParseError, CommandTypeError
+from clinner.exceptions import CommandArgParseError, CommandTypeError, WrongCommandError
 from clinner.run.main import Main
+
+
+class CommandRegisterTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(CommandRegisterTestCase, cls).setUpClass()
+
+        @command
+        def foo(*args, **kwargs):
+            pass
+
+    def test_command(self):
+        self.assertTrue('foo' in command.register)
+
+    def test_get_wrong_command(self):
+        with self.assertRaises(WrongCommandError):
+            command.register['wrong_command']
+
+    @classmethod
+    def tearDownClass(cls):
+        super(CommandRegisterTestCase, cls).tearDownClass()
+        command.register.clear()
 
 
 class CommandTestCase(TestCase):

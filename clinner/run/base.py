@@ -1,6 +1,7 @@
 import argparse
 import os
 from abc import ABCMeta, abstractmethod
+from importlib import import_module
 from multiprocessing import Process
 from subprocess import Popen
 
@@ -39,10 +40,23 @@ class MainMeta(ABCMeta):
 
         namespace['inject'] = inject
         namespace['_add_arguments'] = add_arguments
+
+        for command_fqn in namespace.get('commands', []):
+            try:
+                m, c = command_fqn.rsplit('.', 1)
+                if c not in namespace:
+                    module = import_module(m)
+                    cmd = getattr(module, c)
+                    namespace[c] = staticmethod(cmd)
+            except (ValueError, ImportError, AttributeError):
+                raise ImportError("Command not found '{}'".format(command_fqn))
+
         return super(MainMeta, mcs).__new__(mcs, name, bases, namespace)
 
 
 class BaseMain(metaclass=MainMeta):
+    commands = []
+
     def __init__(self, args=None):
         self.cli = CLI()
         self.args, self.unknown_args = self.parse_arguments(args=args)
@@ -100,7 +114,12 @@ class BaseMain(metaclass=MainMeta):
                     p.add_argument(*args, **kwargs)
 
     @abstractmethod
-    def add_arguments(self, parser: argparse.ArgumentParser):
+    def add_arguments(self, parser: 'argparse.ArgumentParser'):
+        """
+        Add to parser all necessary arguments for this Main.
+        
+        :param parser: Argument parser.
+        """
         pass
 
     def parse_arguments(self, args=None):
@@ -134,7 +153,7 @@ class BaseMain(metaclass=MainMeta):
             while p.exitcode is None:
                 try:
                     p.join()
-                except KeyboardInterrupt:
+                except KeyboardInterrupt:  # pragma: no cover
                     pass
 
             result = p.exitcode
@@ -157,7 +176,7 @@ class BaseMain(metaclass=MainMeta):
         if not self.args.dry_run:
             # Run command
             p = Popen(args=cmd, *args, **kwargs)
-            while p.returncode is None:
+            while p.returncode is None:  # pragma: no cover
                 try:
                     p.wait()
                 except KeyboardInterrupt:
@@ -186,7 +205,7 @@ class BaseMain(metaclass=MainMeta):
                 return_code = self.run_python(c, *args, **kwargs)
             elif command_type == Type.SHELL:
                 return_code = self.run_shell(c, *args, **kwargs)
-            else:
+            else:  # pragma: no cover
                 raise CommandTypeError(command_type)
 
             # Break on non-zero exit code.

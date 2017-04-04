@@ -1,6 +1,10 @@
 from unittest.case import TestCase
 from unittest.mock import patch
 
+from multiprocessing import Queue
+
+from nose.plugins.attrib import attr
+
 from clinner.command import command, Type
 from clinner.run.main import Main
 
@@ -63,6 +67,38 @@ class BaseMainTestCase(TestCase):
             main.run()
 
         self.assertEqual(popen_mock.call_count, 0)
+
+    def test_explicit_commands(self):
+        class BarMain(Main):
+            commands = ('tests.run.utils_base.foobar',)
+
+        args = ['foobar']
+        main = BarMain(args)
+        queue = Queue()
+        main.run(q=queue)
+
+        self.assertEqual(queue.get(), 42)
+
+    def test_explicit_command_wrong(self):
+        with self.assertRaises(ImportError):
+            class BarMain(Main):
+                commands = ('tests.run.utils_base.wrong_command',)
+
+    def test_replace_explicit_commands(self):
+        class BarMain(Main):
+            commands = ('tests.run.utils_base.foobar',)
+
+            @staticmethod
+            @command
+            def foobar(*args, **kwargs):
+                kwargs['q'].put(1)
+
+        args = ['foobar']
+        main = BarMain(args)
+        queue = Queue()
+        main.run(q=queue)
+
+        self.assertEqual(queue.get(), 1)
 
     def tearDown(self):
         self.cli_patcher.stop()

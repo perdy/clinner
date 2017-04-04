@@ -11,6 +11,9 @@ VERSION_CHOICES = ('patch', 'minor', 'major')
          args=((('version',), {'help': 'Bump version', 'choices': VERSION_CHOICES}),),
          parser_opts={'help': 'Bump version, create package and upload it'})
 def dist(*args, **kwargs):
+    """
+    Bump version, create package and upload it.
+    """
     clean = shlex.split('rm -rf dist')
     bumpversion = shlex.split('bumpversion %s' % kwargs['version'])
     package = shlex.split('python setup.py sdist bdist_wheel')

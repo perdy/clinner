@@ -3,7 +3,6 @@ from functools import partial, update_wrapper
 from typing import Callable, Tuple, Dict, Any
 
 from clinner.exceptions import WrongCommandError
-from clinner.utils.collections import Register
 
 __all__ = ['command', 'Type']
 
@@ -14,7 +13,7 @@ class Type(Enum):
     BASH = SHELL
 
 
-class CommandRegister(Register):
+class CommandRegister(dict):
     """
     Register for commands.
     """
@@ -56,10 +55,17 @@ class command:  # noqa
         def foobar(*args, **kwargs):
             pass
 
+        @command(args=((('-f', '--foo'), {'help': 'Foo argument that does nothing'}),
+                       (('--bar',), {'action': 'store_true', 'help': 'Bar argument stored as True'})),
+                 parser_opts={'title': 'foobar_command', 'help': 'Help for foobar_command'})
+        def foobar(*args, **kwargs):
+            pass    
+
         For last, is possible to decorate functions or class methods:
         class Foo:
+            @staticmethod
             @command
-            def bar(self):
+            def bar():
                 pass
 
         :param func: Function or class method to be decorated.
