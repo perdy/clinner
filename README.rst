@@ -1,6 +1,7 @@
 =======
 Clinner
 =======
+|build-status| |coverage| |version|
 
 :Version: 1.0.0
 :Status: Production/Stable
@@ -148,3 +149,16 @@ Full code example:
     if __name__ == '__main__':
         sys.exit(Main().run())
 
+
+.. |build-status| image:: https://travis-ci.org/PeRDy/clinner.svg?branch=master
+    :alt: build status
+    :scale: 100%
+    :target: https://travis-ci.org/PeRDy/clinner
+.. |coverage| image:: https://coveralls.io/repos/github/PeRDy/clinner/badge.svg
+    :alt: coverage
+    :scale: 100%
+    :target: https://coveralls.io/github/PeRDy/clinner
+.. |version| image:: https://badge.fury.io/py/clinner.svg
+    :alt: version
+    :scale: 100%
+    :target: https://badge.fury.io/py/clinner
