@@ -1,6 +1,6 @@
-=======
+*******
 Clinner
-=======
+*******
 |build-status| |coverage| |version|
 
 :Version: 1.0.0
@@ -9,10 +9,10 @@ Clinner
 
 Command Line Interface builder that helps creating an entry point for your application.
 
+Check full `Clinner documentation`_.
 
 Quick start
 ===========
-
 1. Install this package using pip:
 
 .. code:: bash
@@ -57,6 +57,7 @@ Commands are declared using a decorator to register given functions. Commands ar
 This decorator allows to be used as a common decorator without arguments, where default type (*python*) will be used:
 
 .. code:: python
+
     @command
     def foobar(bar):
         pass
@@ -64,6 +65,7 @@ This decorator allows to be used as a common decorator without arguments, where 
 Or specifying the type:
 
 .. code:: python
+
     @command(command_type=Type.python)
     def foobar(bar):
         pass
@@ -71,6 +73,7 @@ Or specifying the type:
 But also is possible to provide command line arguments, as expected by argparse.ArgumentParser.add_argument:
 
 .. code:: python
+
     @command(args=((('-f', '--foo'), {'help': 'Foo argument that does nothing'}),                   # Command argument
                    (('--bar',), {'action': 'store_true', 'help': 'Bar argument stored as True'})),  # Another argument
              parser_opts={'title': 'foobar_command', 'help': 'Help for foobar_command'})            # Parser parameters
@@ -82,7 +85,6 @@ this register is a dictionary with the fields declared at the beginning of this 
 
 Main
 ====
-
 A main class is defined to ease the creation of command line applications. This class follows the process:
 
 1. Create a parser using ``argparse.ArgumentParser`` for the application:
@@ -99,27 +101,31 @@ A main class is defined to ease the creation of command line applications. This 
 
 Settings
 ========
-
 Clinner settings can be specified through **CLINNER_SETTINGS** environment variable or using ``-s`` or ``--settings``
 command line flags during invocation. The format to specify settings module or class should be either ``package.module``
 or ``package.module:Class``.
 
 Default Arguments
 -----------------
-
 Default arguments for commands. Let a command ``foo`` declared:
 
 .. code:: python
+
     default_args = {
         'foo': ['-v', '--bar', 'foobar'],
     }
 
-Example
-=======
+Examples
+========
+Some Clinner examples.
 
-Full code example:
+Simple Main
+-----------
+Example of a simple main with two defined commands *foo* and *bar*.
 
-.. code:: python
+.. code-block:: python
+
+    #!/usr/bin/env python
     import os
     import shlex
     import sys
@@ -128,7 +134,7 @@ Full code example:
     from clinner.run.main import Main
 
 
-    @command(command_type=CommandType.bash
+    @command(command_type=CommandType.SHELL
              args=(('-i', '--input'),
                    ('-o', '--output')))
     def foo(*args, **kwargs):
@@ -140,7 +146,7 @@ Full code example:
         return [ls_cmd, wc_cmd]
 
 
-    @command(command_type=CommandType.python)
+    @command(command_type=CommandType.PYTHON)
     def bar(*args, **kwargs):
         """Do a bar."""
         return True
@@ -149,7 +155,37 @@ Full code example:
     if __name__ == '__main__':
         sys.exit(Main().run())
 
+Builder Main
+------------
+Example of main module with build utilities such as unit tests, lint, sphinx doc, tox and dist packaging:
 
+.. code-block:: python
+
+    #!/usr/bin/env python
+    import sys
+
+    from clinner.run import Main
+
+
+    class Build(Main):
+        commands = (
+            'clinner.run.commands.nose.nose',
+            'clinner.run.commands.prospector.prospector',
+            'clinner.run.commands.sphinx.sphinx',
+            'clinner.run.commands.tox.tox',
+            'clinner.run.commands.dist.dist',
+        )
+
+
+    def main():
+        return Build().run()
+
+
+    if __name__ == '__main__':
+        sys.exit(main())
+
+
+.. _Clinner documentation: http://clinner.readthedocs.io
 .. |build-status| image:: https://travis-ci.org/PeRDy/clinner.svg?branch=master
     :alt: build status
     :scale: 100%
