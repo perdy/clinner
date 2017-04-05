@@ -11,4 +11,4 @@ def prospector(*args, **kwargs):
     """
     Run prospector lint.
     """
-    return [shlex.split('prospector')]
+    return [shlex.split('prospector') + list(args)]

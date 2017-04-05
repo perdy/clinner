@@ -3,3 +3,5 @@ coverage
 nose
 prospector
 tox
+sphinx
+sphinx_rtd_theme

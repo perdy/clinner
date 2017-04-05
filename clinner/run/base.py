@@ -117,7 +117,7 @@ class BaseMain(metaclass=MainMeta):
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
         """
         Add to parser all necessary arguments for this Main.
-        
+
         :param parser: Argument parser.
         """
         pass
@@ -196,15 +196,15 @@ class BaseMain(metaclass=MainMeta):
         :return: Command return code.
         """
         # Get list of commands
-        commands, command_type = Builder.build_command(input_command, *self.unknown_args, **vars(self.args))
+        commands, command_type = Builder.build_command(input_command, *args, **kwargs)
 
         self.cli.logger.debug('Running commands:') if commands else None
         return_code = 0
         for c in commands:
             if command_type == Type.PYTHON:
-                return_code = self.run_python(c, *args, **kwargs)
+                return_code = self.run_python(c)
             elif command_type == Type.SHELL:
-                return_code = self.run_shell(c, *args, **kwargs)
+                return_code = self.run_shell(c)
             else:  # pragma: no cover
                 raise CommandTypeError(command_type)
 

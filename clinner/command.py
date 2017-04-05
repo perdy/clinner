@@ -1,6 +1,7 @@
 from enum import Enum
 from functools import partial, update_wrapper
-from typing import Callable, Tuple, Dict, Any
+
+from typing import Any, Callable, Dict, Tuple
 
 from clinner.exceptions import WrongCommandError
 
@@ -17,6 +18,7 @@ class CommandRegister(dict):
     """
     Register for commands.
     """
+
     def register(self, func: Callable, command_type: Type, arguments: Tuple[Tuple[str], Dict[str, Any]],
                  parser: Dict[str, Any]):
         self[func.__name__] = {
@@ -59,7 +61,7 @@ class command:  # noqa
                        (('--bar',), {'action': 'store_true', 'help': 'Bar argument stored as True'})),
                  parser_opts={'title': 'foobar_command', 'help': 'Help for foobar_command'})
         def foobar(*args, **kwargs):
-            pass    
+            pass
 
         For last, is possible to decorate functions or class methods:
         class Foo:

@@ -11,4 +11,4 @@ def tox(*args, **kwargs):
     """
     Run tests using tox.
     """
-    return [shlex.split('tox')]
+    return [shlex.split('tox') + list(args)]

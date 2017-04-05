@@ -66,8 +66,8 @@ class CommandTestCase(TestCase):
             kwargs['q'].put(kwargs['bar'])
 
         queue = Queue()
-        args = ['foo', '-b', 'foobar']
-        Main(args).run(q=queue)
+        args = ['foo']
+        Main(args).run(bar='foobar', q=queue)
 
         self.assertEqual(queue.get(), 'foobar')
 
@@ -78,8 +78,8 @@ class CommandTestCase(TestCase):
             kwargs['q'].put(kwargs['bar'])
 
         queue = Queue()
-        args = ['foo', '-b', '3']
-        Main(args).run(q=queue)
+        args = ['foo']
+        Main(args).run(bar=3, q=queue)
 
         self.assertEqual(queue.get(), 3)
 
@@ -98,8 +98,8 @@ class CommandTestCase(TestCase):
             kwargs['q'].put(args[0])
 
         queue = Queue()
-        args = ['foo', 'foobar']
-        Main(args).run(q=queue)
+        args = ['foo']
+        Main(args).run('foobar', q=queue)
 
         self.assertEqual(queue.get(), 'foobar')
 

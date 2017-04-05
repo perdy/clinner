@@ -1,4 +1,4 @@
-import argparse
+import argparse  # noqa
 
 from clinner.run.base import BaseMain
 from clinner.run.mixins import HealthCheckMixin
@@ -10,7 +10,7 @@ class Main(BaseMain):
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
         """
         Add to parser all necessary arguments for this Main.
-        
+
         :param parser: Argument parser.
         """
         pass
@@ -25,6 +25,10 @@ class Main(BaseMain):
         This method will print a header and the return code.
         """
         self.cli.print_header(command=self.args.command, settings=self.settings)
+
+        if not args and not kwargs:
+            args = self.unknown_args
+            kwargs = vars(self.args)
 
         return_code = self.run_command(self.args.command, *args, **kwargs)
 

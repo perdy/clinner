@@ -7,12 +7,13 @@ __all__ = ['HealthCheckMixin']
 
 class HealthCheckMixin(metaclass=ABCMeta):
     """
-    Adds health checking behavior to Main classes. To do that is necessary to define a health_check method responsible 
+    Adds health checking behavior to Main classes. To do that is necessary to define a health_check method responsible
     of return the current status of the application.
-    
-    This mixin also adds a new parameter ``-r``, ``--retry`` that defines the number of retries done after a failure. 
+
+    This mixin also adds a new parameter ``-r``, ``--retry`` that defines the number of retries done after a failure.
     These retries uses an exponential backoff to calculate timing.
     """
+
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
         parser.add_argument('-r', '--retry', help='Health check retries before run command. Disabled with 0, max 5.',
                             type=int, default=5, choices=range(6))
@@ -66,6 +67,10 @@ class HealthCheckMixin(metaclass=ABCMeta):
         This method will print a header and the return code.
         """
         self.cli.print_header(command=self.args.command, settings=self.settings)
+
+        if not args and not kwargs:
+            args = self.unknown_args
+            kwargs = vars(self.args)
 
         if self._health_check():
             return_code = self.run_command(self.args.command, *args, **kwargs)
