@@ -1,3 +1,4 @@
+import argparse
 from unittest.case import TestCase
 from unittest.mock import patch
 
@@ -99,6 +100,14 @@ class BaseMainTestCase(TestCase):
         main.run(q=queue)
 
         self.assertEqual(queue.get(), 1)
+
+    def test_parse_args_with_parser(self):
+        parser = argparse.ArgumentParser()
+
+        main = FooMain(parse_args=False)
+        args, _ = main.parse_arguments(args=['-f', '1', 'foo'], parser=parser)
+
+        self.assertEqual(args.foo, 1)
 
     def tearDown(self):
         self.cli_patcher.stop()

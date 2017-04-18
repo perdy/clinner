@@ -12,3 +12,7 @@ class CommandTypeError(TypeError):
 
 class CommandArgParseError(ValueError):
     pass
+
+
+class ImproperlyConfigured(Exception):
+    pass

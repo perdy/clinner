@@ -15,8 +15,9 @@ class HealthCheckMixin(metaclass=ABCMeta):
     """
 
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
-        parser.add_argument('-r', '--retry', help='Health check retries before run command. Disabled with 0, max 5.',
-                            type=int, default=5, choices=range(6))
+        parser.add_argument('-r', '--retry', help='Health check retries before run command. Disabled with 0, max 10.',
+                            type=int, default=5, choices=range(11))
+        parser.add_argument('--skip-check', help='Skip health check.', default=False, action='store_true')
 
     @abstractmethod
     def health_check(self):
@@ -33,7 +34,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
 
         :return: True if health check was successful. False otherwise.
         """
-        if self.args.retry:
+        if not self.args.skip_check and self.args.retry:
             health = False
             self.cli.logger.info('Performing healthcheck...')
             timeout = random()

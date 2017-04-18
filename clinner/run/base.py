@@ -56,21 +56,23 @@ class MainMeta(ABCMeta):
 
 class BaseMain(metaclass=MainMeta):
     commands = []
+    description = None
 
-    def __init__(self, args=None):
+    def __init__(self, args=None, parse_args=True):
         self.cli = CLI()
-        self.args, self.unknown_args = self.parse_arguments(args=args)
-        self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
+        if parse_args:
+            self.args, self.unknown_args = self.parse_arguments(args=args)
+            self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
 
-        # Inject parameters related to current stage as environment variables
-        self.inject()
+            # Inject parameters related to current stage as environment variables
+            self.inject()
 
-        # Load settings
-        settings.build_from_module(self.args.settings)
+            # Load settings
+            settings.build_from_module(self.args.settings)
 
-        # Apply quiet mode
-        if self.args.quiet:
-            self.cli.disable()
+            # Apply quiet mode
+            if self.args.quiet:
+                self.cli.disable()
 
     def _base_arguments(self, parser: 'argparse.ArgumentParser'):
         """
@@ -96,22 +98,25 @@ class BaseMain(metaclass=MainMeta):
                 subparser_opts['add_help'] = False
 
             p = subparsers.add_parser(cmd_name, **subparser_opts)
-            for argument in cmd['arguments']:
-                try:
-                    if len(argument) == 2:
-                        args, kwargs = argument
-                    elif len(argument) == 1:
-                        args = argument[0]
-                        kwargs = {}
-                    else:
-                        args, kwargs = None, None
+            if callable(cmd['arguments']):
+                cmd['arguments'](p)
+            else:
+                for argument in cmd['arguments']:
+                    try:
+                        if len(argument) == 2:
+                            args, kwargs = argument
+                        elif len(argument) == 1:
+                            args = argument[0]
+                            kwargs = {}
+                        else:
+                            args, kwargs = None, None
 
-                    assert isinstance(args, (tuple, list))
-                    assert isinstance(kwargs, dict)
-                except AssertionError:
-                    raise CommandArgParseError(str(argument))
-                else:
-                    p.add_argument(*args, **kwargs)
+                        assert isinstance(args, (tuple, list))
+                        assert isinstance(kwargs, dict)
+                    except AssertionError:
+                        raise CommandArgParseError(str(argument))
+                    else:
+                        p.add_argument(*args, **kwargs)
 
     @abstractmethod
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
@@ -122,11 +127,12 @@ class BaseMain(metaclass=MainMeta):
         """
         pass
 
-    def parse_arguments(self, args=None):
+    def parse_arguments(self, args=None, parser=None):
         """
         command Line application arguments.
         """
-        parser = argparse.ArgumentParser(conflict_handler='resolve')
+        if parser is None:
+            parser = argparse.ArgumentParser(description=self.description, conflict_handler='resolve')
 
         # Call inner method that adds arguments from all classes (defined in metaclass)
         self._add_arguments(parser)

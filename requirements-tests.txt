@@ -1,7 +1,8 @@
--r ../requirements.txt
+-r requirements.txt
 coverage
 nose
 prospector
+pylint<1.7
 tox
 sphinx
 sphinx_rtd_theme

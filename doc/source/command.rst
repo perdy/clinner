@@ -76,6 +76,45 @@ Bash
 ^^^^
 Alias for Shell.
 
+Arguments
+---------
+Command line arguments are defined through *args* parameter of command decorator. This arguments can be defined using
+the follow structure:
+
+.. code-block:: python
+
+    @command(args=(
+        (('positionals',) {'help': 'Positional arguments', 'nargs': '+'}),
+        (('-f', '--foo'), {'help': 'Foo argument', 'default': 'foo'}),
+        (('--bar',), {'help': 'Bar argument', 'default': 1, 'type': int, 'choices': range(1, 6)}),
+    ))
+    def cmd(*args, **kwargs):
+        pass
+
+Also is possible to define args using a callable that receives the parser:
+
+.. code-block:: python
+
+    def add_arguments(parser):
+        parser.add_argument('positionals', help='Positional arguments', nargs='+')
+        parser.add_argument('-f', '--foo', help='Foo argument', default='foo')
+        parser.add_argument('--bar', help='Bar argument', default=1, type=int, choices=range(1, 6))
+
+    @command(args=add_arguments)
+    def cmd(*args, **kwargs):
+        pass
+
+Parser options
+--------------
+It is possible to pass options to the command parser, such as *title*, *help*... These options should be passed through
+*parser_opts* parameter of command decorator:
+
+.. code-block:: python
+
+    @command(parser_opts={'help': 'Command doing awesome things!'})
+    def cmd(*args, **kwargs):
+        pass
+
 Register
 ========
 All commands will be registered in a :class:`clinner.command.CommandRegister` that can be accessed through

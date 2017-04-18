@@ -83,6 +83,20 @@ class CommandTestCase(TestCase):
 
         self.assertEqual(queue.get(), 3)
 
+    def test_command_with_callable_args(self):
+        def add_arguments(parser):
+            parser.add_argument('-b', '--bar', type=int, help='bar argument')
+
+        @command(args=add_arguments)
+        def foo(*args, **kwargs):
+            kwargs['q'].put(kwargs['bar'])
+
+        queue = Queue()
+        args = ['foo']
+        Main(args).run(bar=3, q=queue)
+
+        self.assertEqual(queue.get(), 3)
+
     def test_command_with_wrong_args_number(self):
         @command(command_type=Type.PYTHON,
                  args=(((1, 2, 3),)))  # wrong args number

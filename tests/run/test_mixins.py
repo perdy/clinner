@@ -55,6 +55,18 @@ class HealthCheckMixinTestCase(TestCase):
         def foo(*args, **kwargs):
             pass
 
+        args = ['-q', '--skip-check', 'foo']
+        main = FooMain(args)
+        main.health_check = lambda: False
+        result = main.run()
+
+        self.assertEqual(result, 0)
+
+    def test_main_retry_zero(self):
+        @command
+        def foo(*args, **kwargs):
+            pass
+
         args = ['-q', '-r', '0', 'foo']
         main = FooMain(args)
         main.health_check = lambda: False
