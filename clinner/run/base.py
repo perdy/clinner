@@ -23,13 +23,13 @@ class MainMeta(ABCMeta):
             for method in [v for k, v in namespace.items() if k.startswith('inject_')]:
                 method(self)
 
-        def add_arguments(self, parser):
+        def add_arguments(self, parser, parser_class=None):
             """
             Add command line arguments to parser.
 
             :param parser: Parser.
             """
-            self._base_arguments(parser)
+            self._commands_arguments(parser, parser_class)
 
             for base in reversed(bases):
                 if hasattr(base, 'add_arguments'):
@@ -60,6 +60,7 @@ class BaseMain(metaclass=MainMeta):
 
     def __init__(self, args=None, parse_args=True):
         self.cli = CLI()
+        self.args, self.unknown_args = argparse.Namespace(), []
         if parse_args:
             self.args, self.unknown_args = self.parse_arguments(args=args)
             self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
@@ -74,22 +75,15 @@ class BaseMain(metaclass=MainMeta):
             if self.args.quiet:
                 self.cli.disable()
 
-    def _base_arguments(self, parser: 'argparse.ArgumentParser'):
+    def _commands_arguments(self, parser: 'argparse.ArgumentParser', parser_class=None):
         """
-        Add arguments to parser.
+        Add arguments for each command to parser.
 
         :param parser: Parser
         """
-        parser.add_argument('-s', '--settings',
-                            help='Module or object with Clinner settings in format "package.module[:Object]"')
-        parser.add_argument('-q', '--quiet', help='Quiet mode. No standard output other than executed application',
-                            action='store_true')
-        parser.add_argument('--dry-run', action='store_true',
-                            help='Dry run. Skip commands execution, useful to check which commands will be executed '
-                                 'and execution order')
-
         # Create subparser for each command
-        subparsers = parser.add_subparsers(title='Commands', dest='command')
+        subparsers_kwargs = {'parser_class': lambda **kwargs: parser_class(self, **kwargs)} if parser_class else {}
+        subparsers = parser.add_subparsers(title='Commands', dest='command', **subparsers_kwargs)
         subparsers.required = True
         for cmd_name, cmd in command.register.items():
 
@@ -127,7 +121,7 @@ class BaseMain(metaclass=MainMeta):
         """
         pass
 
-    def parse_arguments(self, args=None, parser=None):
+    def parse_arguments(self, args=None, parser=None, parser_class=None):
         """
         command Line application arguments.
         """
@@ -135,7 +129,7 @@ class BaseMain(metaclass=MainMeta):
             parser = argparse.ArgumentParser(description=self.description, conflict_handler='resolve')
 
         # Call inner method that adds arguments from all classes (defined in metaclass)
-        self._add_arguments(parser)
+        self._add_arguments(parser, parser_class)
 
         return parser.parse_known_args(args=args)
 
@@ -152,7 +146,7 @@ class BaseMain(metaclass=MainMeta):
 
         result = 0
 
-        if not self.args.dry_run:
+        if not getattr(self.args, 'dry_run', False):
             # Run command
             p = Process(target=cmd, args=args, kwargs=kwargs)
             p.start()
@@ -179,7 +173,7 @@ class BaseMain(metaclass=MainMeta):
 
         result = 0
 
-        if not self.args.dry_run:
+        if not getattr(self.args, 'dry_run', False):
             # Run command
             p = Popen(args=cmd, *args, **kwargs)
             while p.returncode is None:  # pragma: no cover

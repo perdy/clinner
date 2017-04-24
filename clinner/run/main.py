@@ -13,7 +13,13 @@ class Main(BaseMain):
 
         :param parser: Argument parser.
         """
-        pass
+        parser.add_argument('-s', '--settings',
+                            help='Module or object with Clinner settings in format "package.module[:Object]"')
+        parser.add_argument('-q', '--quiet', help='Quiet mode. No standard output other than executed application',
+                            action='store_true')
+        parser.add_argument('--dry-run', action='store_true',
+                            help='Dry run. Skip commands execution, useful to check which commands will be executed '
+                                 'and execution order')
 
     def run(self, *args, **kwargs):
         """
@@ -24,13 +30,17 @@ class Main(BaseMain):
 
         This method will print a header and the return code.
         """
-        self.cli.print_header(command=self.args.command, settings=self.settings)
+        cmd_args = self.unknown_args if not args else args
 
-        if not args and not kwargs:
-            args = self.unknown_args
-            kwargs = vars(self.args)
+        cmd_kwargs = vars(self.args)
+        cmd_kwargs.update(kwargs)
 
-        return_code = self.run_command(self.args.command, *args, **kwargs)
+        command = cmd_kwargs['command']
+        settings = cmd_kwargs['settings']
+
+        self.cli.print_header(command=command, settings=settings)
+
+        return_code = self.run_command(command, *cmd_args, **cmd_kwargs)
 
         self.cli.print_return(return_code)
         return return_code

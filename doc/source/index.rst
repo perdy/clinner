@@ -25,6 +25,7 @@ Clinner
 
    Define command<command.rst>
    Main classes<main.rst>
+   Django commands<django_commands.rst>
    Full examples<examples.rst>
 
 Batteries Included
