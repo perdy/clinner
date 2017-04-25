@@ -9,6 +9,9 @@ Clinner provides some defined commands ready to be used by Main classes.
 .. automodule:: clinner.run.commands.nose
     :members:
 
+.. automodule:: clinner.run.commands.pytest
+    :members:
+
 .. automodule:: clinner.run.commands.prospector
     :members:
 
