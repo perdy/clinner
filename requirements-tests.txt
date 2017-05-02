@@ -1,6 +1,8 @@
 -r requirements.txt
 coverage
-nose
+pytest
+pytest-xdist
+pytest-cov
 prospector
 pylint<1.7
 tox

@@ -1,9 +1,7 @@
 from unittest.case import TestCase
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import MagicMock, call
 
-from clinner.command import command
-from clinner.run import HealthCheckMixin, DjangoCommand
-from clinner.run.main import Main
+from clinner.run import DjangoCommand
 
 
 class FooMain(MagicMock):

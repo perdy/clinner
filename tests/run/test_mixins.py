@@ -13,7 +13,6 @@ class FooMain(HealthCheckMixin, Main):
 
 class HealthCheckMixinTestCase(TestCase):
     def setUp(self):
-        command.register.clear()
         self.cli_patcher = patch('clinner.run.base.CLI')
         self.cli_patcher.start()
 
@@ -76,4 +75,4 @@ class HealthCheckMixinTestCase(TestCase):
 
     def tearDown(self):
         self.cli_patcher.stop()
-        command.register.clear()
+        del command.register['foo']

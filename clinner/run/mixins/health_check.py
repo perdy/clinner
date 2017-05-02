@@ -67,14 +67,18 @@ class HealthCheckMixin(metaclass=ABCMeta):
 
         This method will print a header and the return code.
         """
-        self.cli.print_header(command=self.args.command, settings=self.settings)
+        cmd_args = self.unknown_args if not args else args
 
-        if not args and not kwargs:
-            args = self.unknown_args
-            kwargs = vars(self.args)
+        cmd_kwargs = vars(self.args)
+        cmd_kwargs.update(kwargs)
+
+        command = cmd_kwargs['command']
+        settings = cmd_kwargs['settings']
+
+        self.cli.print_header(command=command, settings=settings)
 
         if self._health_check():
-            return_code = self.run_command(self.args.command, *args, **kwargs)
+            return_code = self.run_command(command, *cmd_args, **cmd_kwargs)
         else:
             return_code = 1
 

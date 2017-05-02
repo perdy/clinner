@@ -3,19 +3,23 @@ from multiprocessing import Queue
 from unittest.case import TestCase
 from unittest.mock import patch
 
+import pytest
+
 from clinner.command import Type, command
 from clinner.exceptions import CommandArgParseError, CommandTypeError, WrongCommandError
 from clinner.run.main import Main
 
 
 class CommandRegisterTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(CommandRegisterTestCase, cls).setUpClass()
-
+    @pytest.fixture(autouse=True)
+    def create_command(self):
         @command
         def foo(*args, **kwargs):
             pass
+
+        yield
+
+        del command.register['foo']
 
     def test_command(self):
         self.assertTrue('foo' in command.register)
@@ -24,16 +28,10 @@ class CommandRegisterTestCase(TestCase):
         with self.assertRaises(WrongCommandError):
             command.register['wrong_command']
 
-    @classmethod
-    def tearDownClass(cls):
-        super(CommandRegisterTestCase, cls).tearDownClass()
-        command.register.clear()
-
 
 class CommandTestCase(TestCase):
     def setUp(self):
         sys.argv = ['test']
-        command.register.clear()
         self.cli_patcher = patch('clinner.run.base.CLI')
         self.cli_patcher.start()
 
@@ -170,4 +168,4 @@ class CommandTestCase(TestCase):
 
     def tearDown(self):
         self.cli_patcher.stop()
-        command.register.clear()
+        del command.register['foo']

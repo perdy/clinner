@@ -46,7 +46,7 @@ class Main(BaseMain):
         return return_code
 
 
-class HealthCheckMain(HealthCheckMixin, BaseMain):
+class HealthCheckMain(HealthCheckMixin, Main):
     """
     Main class with health check behavior.
     """

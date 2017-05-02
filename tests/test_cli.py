@@ -1,7 +1,6 @@
-from unittest.case import TestCase
-from unittest.mock import MagicMock, patch, call
-
 import logging
+from unittest.case import TestCase
+from unittest.mock import MagicMock, call, patch
 
 from clinner.cli import CLI
 

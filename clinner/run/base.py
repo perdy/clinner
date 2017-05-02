@@ -28,6 +28,7 @@ class MainMeta(ABCMeta):
             Add command line arguments to parser.
 
             :param parser: Parser.
+            :param parser_class: Parser class.
             """
             self._commands_arguments(parser, parser_class)
 
