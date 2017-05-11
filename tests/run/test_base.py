@@ -12,11 +12,12 @@ from clinner.run.main import Main
 
 class BaseMainTestCase(TestCase):
     @pytest.fixture(autouse=True)
-    def define_main(self):class FooMain(Main):
-    @staticmethod
-    @command
-    def foo(*args, **kwargs):
-        return 42
+    def define_main(self):
+        class FooMain(Main):
+            @staticmethod
+            @command
+            def foo(*args, **kwargs):
+                return 42
 
             @staticmethod
             @command(command_type=Type.SHELL)
