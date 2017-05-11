@@ -29,7 +29,7 @@ class HealthCheckMixinTestCase(TestCase):
     def test_main_run(self):
         @command
         def foo(*args, **kwargs):
-            pass
+            return 0
 
         args = ['-q', 'foo']
         main = FooMain(args)
@@ -40,7 +40,7 @@ class HealthCheckMixinTestCase(TestCase):
     def test_main_health_check_fails(self):
         @command
         def foo(*args, **kwargs):
-            pass
+            return 0
 
         args = ['-q', '-r', '1', 'foo']
         main = FooMain(args)
@@ -52,7 +52,7 @@ class HealthCheckMixinTestCase(TestCase):
     def test_main_skip_health_check(self):
         @command
         def foo(*args, **kwargs):
-            pass
+            return 0
 
         args = ['-q', '--skip-check', 'foo']
         main = FooMain(args)
@@ -64,7 +64,7 @@ class HealthCheckMixinTestCase(TestCase):
     def test_main_retry_zero(self):
         @command
         def foo(*args, **kwargs):
-            pass
+            return 0
 
         args = ['-q', '-r', '0', 'foo']
         main = FooMain(args)

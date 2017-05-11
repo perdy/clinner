@@ -15,7 +15,7 @@ class CommandRegisterTestCase(TestCase):
     def create_command(self):
         @command
         def foo(*args, **kwargs):
-            pass
+            return 42
 
         yield
 

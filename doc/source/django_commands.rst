@@ -20,6 +20,6 @@ Using previously defined Main classes it's possible to wrap it as a Django comma
 
 This class handles the django commands arguments as well as passing them to run method.
 
-.. autoclass:: clinner.run.django_commands.DjangoCommand
+.. autoclass:: clinner.run.django_command.DjangoCommand
     :members:
 

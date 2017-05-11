@@ -12,12 +12,11 @@ from clinner.run.main import Main
 
 class BaseMainTestCase(TestCase):
     @pytest.fixture(autouse=True)
-    def define_main(self):
-        class FooMain(Main):
-            @staticmethod
-            @command
-            def foo(*args, **kwargs):
-                pass
+    def define_main(self):class FooMain(Main):
+    @staticmethod
+    @command
+    def foo(*args, **kwargs):
+        return 42
 
             @staticmethod
             @command(command_type=Type.SHELL)
@@ -58,10 +57,9 @@ class BaseMainTestCase(TestCase):
         args = ['--dry-run', 'foo']
         main = self.main_cls(args)
 
-        with patch('clinner.run.base.Process') as process_mock:
-            main.run()
+        result = main.run()
 
-        self.assertEqual(process_mock.call_count, 0)
+        self.assertEqual(result, 0)
 
     def test_dry_run_shell(self):
         args = ['--dry-run', 'bar']

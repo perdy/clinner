@@ -2,7 +2,6 @@ import argparse
 import os
 from abc import ABCMeta, abstractmethod
 from importlib import import_module
-from multiprocessing import Process
 from subprocess import Popen
 
 from clinner.builder import Builder
@@ -149,15 +148,7 @@ class BaseMain(metaclass=MainMeta):
 
         if not getattr(self.args, 'dry_run', False):
             # Run command
-            p = Process(target=cmd, args=args, kwargs=kwargs)
-            p.start()
-            while p.exitcode is None:
-                try:
-                    p.join()
-                except KeyboardInterrupt:  # pragma: no cover
-                    pass
-
-            result = p.exitcode
+            result = cmd(*args, **kwargs)
 
         return result
 
