@@ -48,6 +48,9 @@ class CLI:
         self.logger.addHandler(self.handler)
 
     def print_return(self, code: int):
+        if code is None:
+            code = 0
+
         level = logging.INFO if code == 0 else logging.ERROR
         self.logger.log(level, 'Return code: %d', code)
 
