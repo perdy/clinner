@@ -9,6 +9,7 @@ from clinner.cli import CLI
 from clinner.command import Type, command
 from clinner.exceptions import CommandArgParseError, CommandTypeError
 from clinner.settings import settings
+import collections
 
 __all__ = ['MainMeta', 'BaseMain']
 
@@ -19,7 +20,7 @@ class MainMeta(ABCMeta):
             """
             Add all environment variables defined in all inject methods.
             """
-            for method in [v for k, v in namespace.items() if k.startswith('inject_')]:
+            for method in [v for k, v in list(namespace.items()) if k.startswith('inject_')]:
                 method(self)
 
         def add_arguments(self, parser, parser_class=None):
@@ -85,14 +86,14 @@ class BaseMain(metaclass=MainMeta):
         subparsers_kwargs = {'parser_class': lambda **kwargs: parser_class(self, **kwargs)} if parser_class else {}
         subparsers = parser.add_subparsers(title='Commands', dest='command', **subparsers_kwargs)
         subparsers.required = True
-        for cmd_name, cmd in command.register.items():
+        for cmd_name, cmd in list(command.register.items()):
 
             subparser_opts = cmd['parser']
             if cmd['type'] == Type.SHELL:
                 subparser_opts['add_help'] = False
 
             p = subparsers.add_parser(cmd_name, **subparser_opts)
-            if callable(cmd['arguments']):
+            if isinstance(cmd['arguments'], collections.Callable):
                 cmd['arguments'](p)
             else:
                 for argument in cmd['arguments']:

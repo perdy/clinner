@@ -4,6 +4,7 @@ from functools import partial, update_wrapper
 from typing import Any, Callable, Dict, Tuple
 
 from clinner.exceptions import WrongCommandError
+import collections
 
 __all__ = ['command', 'Type']
 
@@ -78,7 +79,7 @@ class command:  # noqa
         self.kwargs = parser_opts or {}
         self.command_type = command_type
 
-        if func is not None and callable(func):
+        if func is not None and isinstance(func, collections.Callable):
             # Full initialization decorator
             self._decorate(func=func, command_type=self.command_type, args=self.args, parse_opts=self.kwargs)
         else:
@@ -106,7 +107,7 @@ class command:  # noqa
             return self.func(*args, **kwargs)
         else:
             # Decorator is not initialized and now is giving the function to be decorated
-            if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+            if len(args) == 1 and len(kwargs) == 0 and isinstance(args[0], collections.Callable):
                 self._decorate(func=args[0], command_type=self.command_type, args=self.args, parse_opts=self.kwargs)
                 return self
             else:
