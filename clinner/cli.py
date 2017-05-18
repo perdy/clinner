@@ -55,11 +55,11 @@ class CLI:
         self.logger.log(level, 'Return code: %d', code)
 
     def print_header(self, **kwargs):
-        fields = OrderedDict(sorted(kwargs.items(), key=lambda x: x[0]))
+        fields = OrderedDict(sorted(list(kwargs.items()), key=lambda x: x[0]))
 
-        fmt = '{:<%d}: {}' % (max([len(x) for x in fields.keys()]),)
+        fmt = '{:<%d}: {}' % (max([len(x) for x in list(fields.keys())]),)
         header_lines = [self.SEP]
-        for k, v in fields.items():
+        for k, v in list(fields.items()):
             header_lines.append(fmt.format(k.capitalize(), v))
         header_lines.append(self.SEP)
 

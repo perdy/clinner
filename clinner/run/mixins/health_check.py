@@ -16,7 +16,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
 
     def add_arguments(self, parser: 'argparse.ArgumentParser'):
         parser.add_argument('-r', '--retry', help='Health check retries before run command. Disabled with 0, max 10.',
-                            type=int, default=5, choices=range(11))
+                            type=int, default=5, choices=list(range(11)))
         parser.add_argument('--skip-check', help='Skip health check.', default=False, action='store_true')
 
     @abstractmethod
