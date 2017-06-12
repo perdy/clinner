@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 import sys
 
-from clinner.run import Main
+try:
+    from clinner.run import Main
+except ImportError:
+    import pip
+    print('Installing Clinner')
+    pip.main(['install', '-qq', 'clinner'])
+
+    from clinner.run import Main
 
 
 class Build(Main):

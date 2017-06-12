@@ -195,7 +195,7 @@ class BaseMain(metaclass=MainMeta):
         for c in commands:
             if command_type == Type.PYTHON:
                 return_code = self.run_python(c)
-            elif command_type == Type.SHELL:
+            elif command_type in (Type.SHELL, Type.SHELL_WITH_HELP):
                 return_code = self.run_shell(c)
             else:  # pragma: no cover
                 raise CommandTypeError(command_type)

@@ -69,7 +69,7 @@ class Builder:
 
         if command_type == CommandType.PYTHON:
             built = Builder._build_python_command(method, *args, **kwargs)
-        elif command_type == CommandType.SHELL:
+        elif command_type in (CommandType.SHELL, CommandType.SHELL_WITH_HELP):
             built = Builder._build_shell_command(method, *args, **kwargs)
         else:
             raise CommandTypeError(command_type)

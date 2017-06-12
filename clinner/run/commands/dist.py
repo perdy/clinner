@@ -7,7 +7,7 @@ __all__ = ['dist']
 VERSION_CHOICES = ('patch', 'minor', 'major')
 
 
-@command(command_type=Type.SHELL,
+@command(command_type=Type.SHELL_WITH_HELP,
          args=((('version',), {'help': 'Bump version', 'choices': VERSION_CHOICES}),),
          parser_opts={'help': 'Bump version, create package and upload it'})
 def dist(*args, **kwargs):

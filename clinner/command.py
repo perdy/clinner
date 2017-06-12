@@ -12,6 +12,8 @@ class Type(Enum):
     PYTHON = 'python'
     SHELL = 'shell'
     BASH = SHELL
+    SHELL_WITH_HELP = 'shell_with_help'
+    BASH_WITH_HELP = SHELL_WITH_HELP
 
 
 class CommandRegister(dict):
