@@ -81,6 +81,8 @@ class BaseMainTestCase(TestCase):
         main.run(q=queue)
 
         self.assertEqual(queue.get(), 42)
+        self.assertIn('foobar', main._commands)
+        self.assertEqual(len(main._commands), 1)
 
     def test_explicit_command_wrong(self):
         with self.assertRaises(ImportError):

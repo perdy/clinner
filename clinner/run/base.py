@@ -41,15 +41,17 @@ class MainMeta(ABCMeta):
         namespace['inject'] = inject
         namespace['_add_arguments'] = add_arguments
 
+        cmds = {}
         for command_fqn in namespace.get('commands', []):
             try:
                 m, c = command_fqn.rsplit('.', 1)
                 if c not in namespace:
-                    module = import_module(m)
-                    cmd = getattr(module, c)
-                    namespace[c] = staticmethod(cmd)
+                    getattr(import_module(m), c)
+                    cmds[c] = command.register[c]
             except (ValueError, ImportError, AttributeError):
                 raise ImportError("Command not found '{}'".format(command_fqn))
+
+        namespace['_commands'] = cmds or None
 
         return super(MainMeta, mcs).__new__(mcs, name, bases, namespace)
 
@@ -85,8 +87,9 @@ class BaseMain(metaclass=MainMeta):
         subparsers_kwargs = {'parser_class': lambda **kwargs: parser_class(self, **kwargs)} if parser_class else {}
         subparsers = parser.add_subparsers(title='Commands', dest='command', **subparsers_kwargs)
         subparsers.required = True
-        for cmd_name, cmd in command.register.items():
 
+        cmds = self._commands if self._commands is not None else command.register
+        for cmd_name, cmd in cmds.items():
             subparser_opts = cmd['parser']
             if cmd['type'] == Type.SHELL:
                 subparser_opts['add_help'] = False
