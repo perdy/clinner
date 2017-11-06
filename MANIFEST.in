@@ -3,6 +3,7 @@ include CHANGELOG
 include README.rst
 include CONTRIBUTORS.rst
 include requirements.txt
+include requirements-tests.txt
 include runtests.py
 graft clinner
 graft tests
