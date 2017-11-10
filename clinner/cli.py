@@ -40,6 +40,7 @@ class CLI:
         self.logger = logging.getLogger('cli')
         self.logger.addHandler(self.handler)
         self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
 
     def disable(self):
         self.logger.removeHandler(self.handler)
