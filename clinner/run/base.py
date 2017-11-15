@@ -1,6 +1,7 @@
 import argparse
 import os
 from abc import ABCMeta, abstractmethod
+from collections import OrderedDict
 from importlib import import_module
 from subprocess import Popen
 
@@ -48,10 +49,12 @@ class MainMeta(ABCMeta):
                 if c not in namespace:
                     getattr(import_module(m), c)
                     cmds[c] = command.register[c]
-            except (ValueError, ImportError, AttributeError):
+            except ValueError:
+                cmds[command_fqn] = command.register[command_fqn]
+            except (ImportError, AttributeError):
                 raise ImportError("Command not found '{}'".format(command_fqn))
 
-        namespace['_commands'] = cmds or None
+        namespace['_commands'] = OrderedDict(sorted(cmds.items(), key=lambda t: t[0])) if cmds else None
 
         return super(MainMeta, mcs).__new__(mcs, name, bases, namespace)
 
