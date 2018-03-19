@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
@@ -64,21 +65,27 @@ class BaseMain(metaclass=MainMeta):
     description = None
 
     def __init__(self, args=None, parse_args=True):
-        self.cli = CLI()
         self.args, self.unknown_args = argparse.Namespace(), []
+        self.cli = CLI()
         if parse_args:
             self.args, self.unknown_args = self.parse_arguments(args=args)
             self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
+
+            # Set logging verbosity
+            if self.args.quiet:
+                self.cli.disable()
+            elif self.args.verbose == 1:
+                self.cli.set_level(logging.INFO)
+            elif self.args.verbose >= 2:
+                self.cli.set_level(logging.DEBUG)
+            else:  # Default log level
+                self.cli.set_level(logging.INFO)
 
             # Inject parameters related to current stage as environment variables
             self.inject()
 
             # Load settings
             settings.build_from_module(self.args.settings)
-
-            # Apply quiet mode
-            if self.args.quiet:
-                self.cli.disable()
 
     def _commands_arguments(self, parser: 'argparse.ArgumentParser', parser_class=None):
         """
