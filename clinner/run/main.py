@@ -15,8 +15,11 @@ class Main(BaseMain):
         """
         parser.add_argument('-s', '--settings',
                             help='Module or object with Clinner settings in format "package.module[:Object]"')
-        parser.add_argument('-q', '--quiet', help='Quiet mode. No standard output other than executed application',
-                            action='store_true')
+        verbose_group = parser.add_mutually_exclusive_group()
+        verbose_group.add_argument('-q', '--quiet', action='store_true',
+                                   help='Quiet mode. No standard output other than executed application')
+        verbose_group.add_argument('-v', '--verbose', action='count', default=0,
+                                   help='Verbose level (This option is additive)')
         parser.add_argument('--dry-run', action='store_true',
                             help='Dry run. Skip commands execution, useful to check which commands will be executed '
                                  'and execution order')

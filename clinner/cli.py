@@ -17,7 +17,7 @@ class CLI:
     """
     SEP = '-' * 70
 
-    def __init__(self):
+    def __init__(self, level=logging.INFO):
         if _colorlog:
             self.handler = colorlog.StreamHandler()
             self.handler.setFormatter(colorlog.ColoredFormatter(
@@ -39,7 +39,7 @@ class CLI:
 
         self.logger = logging.getLogger('cli')
         self.logger.addHandler(self.handler)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(level)
         self.logger.propagate = False
 
     def disable(self):
@@ -47,6 +47,9 @@ class CLI:
 
     def enable(self):
         self.logger.addHandler(self.handler)
+
+    def set_level(self, level):
+        self.logger.setLevel(level)
 
     def print_return(self, code: int):
         if code is None:
