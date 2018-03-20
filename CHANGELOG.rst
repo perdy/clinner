@@ -1,5 +1,8 @@
 Changes
 =======
+v1.8.2 - 2018-03-20
+ * Run inject methods before getting clinner settings.
+
 v1.8.1 - 2018-03-20
  * Inherit inject methods from Main parents.
 

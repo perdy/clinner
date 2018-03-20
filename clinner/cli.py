@@ -1,5 +1,6 @@
 import logging
 from collections import OrderedDict
+from typing import Optional
 
 try:
     import colorlog
@@ -51,7 +52,7 @@ class CLI:
     def set_level(self, level):
         self.logger.setLevel(level)
 
-    def print_return(self, code: int):
+    def print_return(self, code: Optional[int]):
         if code is None:
             code = 0
 

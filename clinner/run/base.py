@@ -23,7 +23,7 @@ class MainMeta(ABCMeta):
             """
             # Gather inject methods from bases and current class_dict
             methods = {k: v for b in bases for k, v in b.__dict__.items() if k.startswith('inject_')}
-            methods.update({k: v for k, v in namespace.items() if k in namespace.values()})
+            methods.update({k: v for k, v in namespace.items() if k.startswith('inject_')})
 
             for method_name, method in methods.items():
                 method(self)
@@ -73,7 +73,6 @@ class BaseMain(metaclass=MainMeta):
         self.cli = CLI()
         if parse_args:
             self.args, self.unknown_args = self.parse_arguments(args=args)
-            self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
 
             # Set logging verbosity
             if self.args.quiet:
@@ -88,8 +87,11 @@ class BaseMain(metaclass=MainMeta):
             # Inject parameters related to current stage as environment variables
             self.inject()
 
+            # Get settings from args or envvar
+            self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
+
             # Load settings
-            settings.build_from_module(self.args.settings)
+            settings.build_from_module(self.settings)
 
     def _commands_arguments(self, parser: 'argparse.ArgumentParser', parser_class=None):
         """

@@ -1,6 +1,7 @@
 import argparse
+import logging
 from unittest.case import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 from multiprocessing import Queue
 
@@ -54,6 +55,24 @@ class BaseMainTestCase(TestCase):
 
         self.assertEqual(main.cli.disable.call_count, 1)
 
+    def test_main_verbose_1(self):
+        args = ['-v', 'foo']
+        main = self.main_cls(args)
+
+        self.assertEqual(main.cli.set_level.call_args_list, [call(logging.INFO)])
+
+    def test_main_verbose_2(self):
+        args = ['-vv', 'foo']
+        main = self.main_cls(args)
+
+        self.assertEqual(main.cli.set_level.call_args_list, [call(logging.DEBUG)])
+
+    def test_main_verbose_no_explicit(self):
+        args = ['foo']
+        main = self.main_cls(args)
+
+        self.assertEqual(main.cli.set_level.call_args_list, [call(logging.INFO)])
+
     def test_dry_run_python(self):
         args = ['--dry-run', 'foo']
         main = self.main_cls(args)
@@ -70,6 +89,23 @@ class BaseMainTestCase(TestCase):
             main.run()
 
         self.assertEqual(popen_mock.call_count, 0)
+
+    def test_explicit_local_command(self):
+        @command
+        def foo_command(*args, **kwargs):
+            kwargs['q'].put(42)
+
+        class BarMain(Main):
+            commands = ('foo_command',)
+
+        args = ['foo_command']
+        main = BarMain(args)
+        queue = Queue()
+        main.run(q=queue)
+
+        self.assertEqual(queue.get(), 42)
+        self.assertIn('foo_command', main._commands)
+        self.assertEqual(len(main._commands), 1)
 
     def test_explicit_commands(self):
         class BarMain(Main):

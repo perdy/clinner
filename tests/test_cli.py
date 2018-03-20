@@ -31,8 +31,17 @@ class CLITestCase(TestCase):
         self.cli.enable()
         self.assertEqual(self.cli.logger.addHandler.call_count, 1)
 
+    def test_set_level(self):
+        self.cli.set_level(logging.INFO)
+        self.assertEqual(self.cli.logger.setLevel.call_args_list, [call(logging.INFO)])
+
     def test_print_return_ok(self):
         self.cli.print_return(0)
+        expected_calls = [call(logging.INFO, 'Return code: %d', 0)]
+        self.assertCountEqual(self.cli.logger.log.call_args_list, expected_calls)
+
+    def test_print_return_none(self):
+        self.cli.print_return(None)
         expected_calls = [call(logging.INFO, 'Return code: %d', 0)]
         self.assertCountEqual(self.cli.logger.log.call_args_list, expected_calls)
 

@@ -97,7 +97,7 @@ class command:  # noqa
         """
         Make it works with functions and methods.
         """
-        return partial(self.__call__, instance)
+        return partial(self.__call__, instance)  # pragma: no cover
 
     def __call__(self, *args, **kwargs):
         """
@@ -112,4 +112,4 @@ class command:  # noqa
                 self._decorate(func=args[0], command_type=self.command_type, args=self.args, parse_opts=self.kwargs)
                 return self
             else:
-                raise ValueError('Decorator is not initialized')
+                raise ValueError('Decorator is not initialized')  # pragma: no cover
