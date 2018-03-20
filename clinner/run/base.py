@@ -21,7 +21,11 @@ class MainMeta(ABCMeta):
             """
             Add all environment variables defined in all inject methods.
             """
-            for method in [v for k, v in namespace.items() if k.startswith('inject_')]:
+            # Gather inject methods from bases and current class_dict
+            methods = {k: v for b in bases for k, v in b.__dict__.items() if k.startswith('inject_')}
+            methods.update({k: v for k, v in namespace.items() if k in namespace.values()})
+
+            for method_name, method in methods.items():
                 method(self)
 
         def add_arguments(self, parser, parser_class=None):

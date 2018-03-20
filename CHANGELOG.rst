@@ -1,5 +1,11 @@
 Changes
 =======
+v1.8.1 - 2018-03-20
+ * Inherit inject methods from Main parents.
+
+v1.8.0 - 2018-03-19
+ * Different verbose levels.
+
 v1.2.0 - 2017-04-24
  * Added django commands wrapper for main classes.
 
