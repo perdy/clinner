@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = '1.8.2'
+__version__ = '1.9.0'
 __license__ = 'GPLv3'
 
 __author__ = 'José Antonio Perdiguero López'

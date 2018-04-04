@@ -50,7 +50,7 @@ _KEYWORDS = ' '.join([
 
 setup(
     name='clinner',
-    version='1.8.2',
+    version='1.9.0',
     description='Command Line Interface builder that helps creating an entry point for your application.',
     long_description=_LONG_DESCRIPTION,
     author='José Antonio Perdiguero López',
