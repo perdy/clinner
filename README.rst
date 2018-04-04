@@ -3,7 +3,7 @@ Clinner
 *******
 |build-status| |coverage| |version|
 
-:Version: 1.9.0
+:Version: 1.9.1
 :Status: Production/Stable
 :Author: José Antonio Perdiguero López
 
