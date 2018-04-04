@@ -1,4 +1,3 @@
-from unittest.case import TestCase
 from unittest.mock import patch
 
 from clinner.command import command
@@ -11,12 +10,9 @@ class FooMain(HealthCheckMixin, Main):
         return True
 
 
-class HealthCheckMixinTestCase(TestCase):
-    def setUp(self):
-        self.cli_patcher = patch('clinner.run.base.CLI')
-        self.cli_patcher.start()
-
-    def test_main_add_arguments(self):
+class TestCaseHealthCheckMixin:
+    @patch('clinner.run.base.CLI')
+    def test_main_add_arguments(self, cli):
         @command
         def foo(*args, **kwargs):
             pass
@@ -24,9 +20,12 @@ class HealthCheckMixinTestCase(TestCase):
         args = ['-r', '3', 'foo']
         main = FooMain(args)
 
-        self.assertEqual(main.args.retry, 3)
+        assert main.args.retry == 3
 
-    def test_main_run(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_main_run(self, cli):
         @command
         def foo(*args, **kwargs):
             return 0
@@ -35,9 +34,12 @@ class HealthCheckMixinTestCase(TestCase):
         main = FooMain(args)
         result = main.run()
 
-        self.assertEqual(result, 0)
+        assert result == 0
 
-    def test_main_health_check_fails(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_main_health_check_fails(self, cli):
         @command
         def foo(*args, **kwargs):
             return 0
@@ -47,9 +49,12 @@ class HealthCheckMixinTestCase(TestCase):
         main.health_check = lambda: False
         result = main.run()
 
-        self.assertEqual(result, 1)
+        assert result == 1
 
-    def test_main_skip_health_check(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_main_skip_health_check(self, cli):
         @command
         def foo(*args, **kwargs):
             return 0
@@ -59,9 +64,12 @@ class HealthCheckMixinTestCase(TestCase):
         main.health_check = lambda: False
         result = main.run()
 
-        self.assertEqual(result, 0)
+        assert result == 0
 
-    def test_main_retry_zero(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_main_retry_zero(self, cli):
         @command
         def foo(*args, **kwargs):
             return 0
@@ -71,8 +79,6 @@ class HealthCheckMixinTestCase(TestCase):
         main.health_check = lambda: False
         result = main.run()
 
-        self.assertEqual(result, 0)
+        assert result == 0
 
-    def tearDown(self):
-        self.cli_patcher.stop()
         del command.register['foo']

@@ -1,19 +1,17 @@
 import argparse
 import logging
-from unittest.case import TestCase
-from unittest.mock import patch, call
-
 from multiprocessing import Queue
+from unittest.mock import call, patch
 
 import pytest
 
-from clinner.command import command, Type
+from clinner.command import Type, command
 from clinner.run.main import Main
 
 
-class BaseMainTestCase(TestCase):
-    @pytest.fixture(autouse=True)
-    def define_main(self):
+class TestCaseBaseMain:
+    @pytest.fixture
+    def main_cls(self):
         class FooMain(Main):
             @staticmethod
             @command
@@ -31,66 +29,71 @@ class BaseMainTestCase(TestCase):
             def inject_foo(self):
                 self.foo = True
 
-        self.main_cls = FooMain
+        return FooMain
 
-    def setUp(self):
-        self.cli_patcher = patch('clinner.run.base.CLI')
-        self.cli_patcher.start()
-
-    def test_main_inject(self):
+    @patch('clinner.run.base.CLI')
+    def test_main_inject(self, cli, main_cls):
         args = ['foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
-        self.assertTrue(getattr(main, 'foo', False))
+        assert getattr(main, 'foo', False)
 
-    def test_main_add_arguments(self):
+    @patch('clinner.run.base.CLI')
+    def test_main_add_arguments(self, cli, main_cls):
         args = ['-f', '3', 'foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
-        self.assertEqual(main.args.foo, 3)
+        assert main.args.foo == 3
 
-    def test_main_quiet(self):
+    @patch('clinner.run.base.CLI')
+    def test_main_quiet(self, cli, main_cls):
         args = ['-q', 'foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
-        self.assertEqual(main.cli.disable.call_count, 1)
+        assert main.cli.disable.call_count == 1
 
-    def test_main_verbose_1(self):
+    @patch('clinner.run.base.CLI')
+    def test_main_verbose_1(self, cli, main_cls):
         args = ['-v', 'foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
-        self.assertEqual(main.cli.set_level.call_args_list, [call(logging.INFO)])
+        assert main.cli.set_level.call_args_list == [call(logging.INFO)]
 
-    def test_main_verbose_2(self):
+    @patch('clinner.run.base.CLI')
+    def test_main_verbose_2(self, cli, main_cls):
         args = ['-vv', 'foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
-        self.assertEqual(main.cli.set_level.call_args_list, [call(logging.DEBUG)])
+        assert main.cli.set_level.call_args_list == [call(logging.DEBUG)]
 
-    def test_main_verbose_no_explicit(self):
+    @patch('clinner.run.base.CLI')
+    def test_main_verbose_no_explicit(self, cli, main_cls):
         args = ['foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
-        self.assertEqual(main.cli.set_level.call_args_list, [call(logging.INFO)])
+        assert main.cli.set_level.call_args_list == [call(logging.INFO)]
 
-    def test_dry_run_python(self):
+    @patch('clinner.run.base.CLI')
+    def test_dry_run_python(self, cli, main_cls):
         args = ['--dry-run', 'foo']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
         result = main.run()
 
-        self.assertEqual(result, 0)
+        assert result == 0
 
-    def test_dry_run_shell(self):
+    @patch('clinner.run.base.CLI')
+    def test_dry_run_shell(self, cli, main_cls):
         args = ['--dry-run', 'bar']
-        main = self.main_cls(args)
+        main = main_cls(args)
 
         with patch('clinner.run.base.Popen') as popen_mock:
             main.run()
 
-        self.assertEqual(popen_mock.call_count, 0)
+        assert popen_mock.call_count == 0
 
-    def test_explicit_local_command(self):
+    @patch('clinner.run.base.CLI')
+    def test_explicit_local_command(self, cli, main_cls):
         @command
         def foo_command(*args, **kwargs):
             kwargs['q'].put(42)
@@ -103,11 +106,12 @@ class BaseMainTestCase(TestCase):
         queue = Queue()
         main.run(q=queue)
 
-        self.assertEqual(queue.get(), 42)
-        self.assertIn('foo_command', main._commands)
-        self.assertEqual(len(main._commands), 1)
+        assert queue.get() == 42
+        assert 'foo_command' in main._commands
+        assert len(main._commands) == 1
 
-    def test_explicit_commands(self):
+    @patch('clinner.run.base.CLI')
+    def test_explicit_commands(self, cli, main_cls):
         class BarMain(Main):
             commands = ('tests.run.utils_base.foobar',)
 
@@ -116,16 +120,18 @@ class BaseMainTestCase(TestCase):
         queue = Queue()
         main.run(q=queue)
 
-        self.assertEqual(queue.get(), 42)
-        self.assertIn('foobar', main._commands)
-        self.assertEqual(len(main._commands), 1)
+        assert queue.get() == 42
+        assert 'foobar' in main._commands
+        assert len(main._commands) == 1
 
-    def test_explicit_command_wrong(self):
-        with self.assertRaises(ImportError):
+    @patch('clinner.run.base.CLI')
+    def test_explicit_command_wrong(self, cli, main_cls):
+        with pytest.raises(ImportError):
             class BarMain(Main):
                 commands = ('tests.run.utils_base.wrong_command',)
 
-    def test_replace_explicit_commands(self):
+    @patch('clinner.run.base.CLI')
+    def test_replace_explicit_commands(self, cli, main_cls):
         class BarMain(Main):
             commands = ('tests.run.utils_base.foobar',)
 
@@ -139,15 +145,13 @@ class BaseMainTestCase(TestCase):
         queue = Queue()
         main.run(q=queue)
 
-        self.assertEqual(queue.get(), 1)
+        assert queue.get() == 1
 
-    def test_parse_args_with_parser(self):
+    @patch('clinner.run.base.CLI')
+    def test_parse_args_with_parser(self, cli, main_cls):
         parser = argparse.ArgumentParser()
 
-        main = self.main_cls(parse_args=False)
+        main = main_cls(parse_args=False)
         args, _ = main.parse_arguments(args=['-f', '1', 'foo'], parser=parser)
 
-        self.assertEqual(args.foo, 1)
-
-    def tearDown(self):
-        self.cli_patcher.stop()
+        assert args.foo == 1

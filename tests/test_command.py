@@ -1,6 +1,4 @@
-import sys
 from multiprocessing import Queue
-from unittest.case import TestCase
 from unittest.mock import patch
 
 import pytest
@@ -10,7 +8,7 @@ from clinner.exceptions import CommandArgParseError, CommandTypeError, WrongComm
 from clinner.run.main import Main
 
 
-class CommandRegisterTestCase(TestCase):
+class TestCaseCommandRegister:
     @pytest.fixture(autouse=True)
     def create_command(self):
         @command
@@ -22,20 +20,16 @@ class CommandRegisterTestCase(TestCase):
         del command.register['foo']
 
     def test_command(self):
-        self.assertTrue('foo' in command.register)
+        assert 'foo' in command.register
 
     def test_get_wrong_command(self):
-        with self.assertRaises(WrongCommandError):
+        with pytest.raises(WrongCommandError):
             command.register['wrong_command']
 
 
-class CommandTestCase(TestCase):
-    def setUp(self):
-        sys.argv = ['test']
-        self.cli_patcher = patch('clinner.run.base.CLI')
-        self.cli_patcher.start()
-
-    def test_command(self):
+class TestCaseCommand:
+    @patch('clinner.run.base.CLI')
+    def test_command(self, cli):
         @command
         def foo(*args, **kwargs):
             kwargs['q'].put(42)
@@ -44,9 +38,12 @@ class CommandTestCase(TestCase):
         args = ['foo']
         Main(args).run(q=queue)
 
-        self.assertEqual(queue.get(), 42)
+        assert queue.get() == 42
 
-    def test_command_python(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_python(self, cli):
         @command(command_type=Type.PYTHON)
         def foo(*args, **kwargs):
             kwargs['q'].put(42)
@@ -55,9 +52,12 @@ class CommandTestCase(TestCase):
         args = ['foo']
         Main(args).run(q=queue)
 
-        self.assertEqual(queue.get(), 42)
+        assert queue.get() == 42
 
-    def test_command_with_args(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_with_args(self, cli):
         @command(command_type=Type.PYTHON,
                  args=((('-b', '--bar'),),))  # args
         def foo(*args, **kwargs):
@@ -67,9 +67,12 @@ class CommandTestCase(TestCase):
         args = ['foo']
         Main(args).run(bar='foobar', q=queue)
 
-        self.assertEqual(queue.get(), 'foobar')
+        assert queue.get() == 'foobar'
 
-    def test_command_with_args_and_opts(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_with_args_and_opts(self, cli):
         @command(command_type=Type.PYTHON,
                  args=((('-b', '--bar'), {'type': int, 'help': 'bar argument'}),))  # args and opts
         def foo(*args, **kwargs):
@@ -79,9 +82,12 @@ class CommandTestCase(TestCase):
         args = ['foo']
         Main(args).run(bar=3, q=queue)
 
-        self.assertEqual(queue.get(), 3)
+        assert queue.get() == 3
 
-    def test_command_with_callable_args(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_with_callable_args(self, cli):
         def add_arguments(parser):
             parser.add_argument('-b', '--bar', type=int, help='bar argument')
 
@@ -93,18 +99,25 @@ class CommandTestCase(TestCase):
         args = ['foo']
         Main(args).run(bar=3, q=queue)
 
-        self.assertEqual(queue.get(), 3)
+        assert queue.get() == 3
 
-    def test_command_with_wrong_args_number(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_with_wrong_args_number(self, cli):
         @command(command_type=Type.PYTHON,
                  args=(((1, 2, 3),)))  # wrong args number
         def foo(*args, **kwargs):
             kwargs['q'].put(kwargs['bar'])
 
         args = ['foo']
-        self.assertRaises(CommandArgParseError, Main, args)
+        with pytest.raises(CommandArgParseError):
+            Main(args)
 
-    def test_command_with_unknown_args(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_with_unknown_args(self, cli):
         @command  # args
         def foo(*args, **kwargs):
             kwargs['q'].put(args[0])
@@ -113,9 +126,12 @@ class CommandTestCase(TestCase):
         args = ['foo']
         Main(args).run('foobar', q=queue)
 
-        self.assertEqual(queue.get(), 'foobar')
+        assert queue.get() == 'foobar'
 
-    def test_command_shell(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_shell(self, cli):
         @command(command_type=Type.SHELL)
         def foo(*args, **kwargs):
             return [['foo']]
@@ -126,10 +142,13 @@ class CommandTestCase(TestCase):
             popen_mock.return_value.returncode = 0
             main.run()
 
-        self.assertEqual(popen_mock.call_count, 1)
-        self.assertEqual(popen_mock.call_args[1]['args'], ['foo'])
+        assert popen_mock.call_count == 1
+        assert popen_mock.call_args[1]['args'] == ['foo']
 
-    def test_command_multiple_shell(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_multiple_shell(self, cli):
         @command(command_type=Type.SHELL)
         def foo(*args, **kwargs):
             return [['foo'], ['bar']]
@@ -140,11 +159,14 @@ class CommandTestCase(TestCase):
             popen_mock.return_value.returncode = 0
             main.run()
 
-        self.assertEqual(popen_mock.call_count, 2)
-        self.assertEqual(popen_mock.call_args_list[0][1]['args'], ['foo'])
-        self.assertEqual(popen_mock.call_args_list[1][1]['args'], ['bar'])
+        assert popen_mock.call_count == 2
+        assert popen_mock.call_args_list[0][1]['args'] == ['foo']
+        assert popen_mock.call_args_list[1][1]['args'] == ['bar']
 
-    def test_command_multiple_shell_failing(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_multiple_shell_failing(self, cli):
         @command(command_type=Type.SHELL)
         def foo(*args, **kwargs):
             return [['foo'], ['bar']]
@@ -155,17 +177,19 @@ class CommandTestCase(TestCase):
             popen_mock.return_value.returncode = 1
             main.run()
 
-        self.assertEqual(popen_mock.call_count, 1)
-        self.assertEqual(popen_mock.call_args_list[0][1]['args'], ['foo'])
+        assert popen_mock.call_count == 1
+        assert popen_mock.call_args_list[0][1]['args'] == ['foo']
 
-    def test_command_wrong_type(self):
+        del command.register['foo']
+
+    @patch('clinner.run.base.CLI')
+    def test_command_wrong_type(self, cli):
         @command(command_type='foo')
         def foo(*args, **kwargs):
             pass
 
         args = ['foo']
-        self.assertRaises(CommandTypeError, Main(args).run, args)
+        with pytest.raises(CommandTypeError):
+            Main(args).run(args)
 
-    def tearDown(self):
-        self.cli_patcher.stop()
         del command.register['foo']
