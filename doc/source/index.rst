@@ -33,6 +33,7 @@ Batteries Included
 .. toctree::
    :maxdepth: 2
 
+   Inputs<inputs.rst>
    Commands<run_commands.rst>
    Mixins<mixins.rst>
 

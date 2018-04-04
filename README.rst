@@ -136,7 +136,8 @@ Example of a simple main with two defined commands *foo* and *bar*.
 
     @command(command_type=CommandType.SHELL
              args=(('-i', '--input'),
-                   ('-o', '--output')))
+                   ('-o', '--output')),
+             parser_opts={'help': 'Foo command'})
     def foo(*args, **kwargs):
         """List of foo commands"""
         ls_cmd = shlex.split('ls')
@@ -146,7 +147,8 @@ Example of a simple main with two defined commands *foo* and *bar*.
         return [ls_cmd, wc_cmd]
 
 
-    @command(command_type=CommandType.PYTHON)
+    @command(command_type=CommandType.PYTHON,
+             parser_opts={'help': 'Bar command'})
     def bar(*args, **kwargs):
         """Do a bar."""
         return True
@@ -169,7 +171,7 @@ Example of main module with build utilities such as unit tests, lint, sphinx doc
 
     class Build(Main):
         commands = (
-            'clinner.run.commands.nose.nose',
+            'clinner.run.commands.pytest.pytest',
             'clinner.run.commands.prospector.prospector',
             'clinner.run.commands.sphinx.sphinx',
             'clinner.run.commands.tox.tox',
@@ -177,13 +179,10 @@ Example of main module with build utilities such as unit tests, lint, sphinx doc
         )
 
 
-    def main():
-        return Build().run()
-
-
     if __name__ == '__main__':
-        sys.exit(main())
+        sys.exit(Build().run())
 
+Check `Clinner documentation`_ to see more advanced examples.
 
 .. _Clinner documentation: http://clinner.readthedocs.io
 .. |build-status| image:: https://travis-ci.org/PeRDy/clinner.svg?branch=master

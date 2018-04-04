@@ -1,5 +1,9 @@
 Changes
 =======
+v1.9.0 - 2018-04-04
+ * Refactor test to remove TestCase inheritance and use purely pytest.
+ * Add inputs module with some functions for asking user data.
+
 v1.8.2 - 2018-03-20
  * Run inject methods before getting clinner settings.
 
