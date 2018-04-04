@@ -31,7 +31,7 @@ def choices_input(input_str: str, choices: List[Any]) -> str:
     :return: User response.
     """
     choices = dict(enumerate(choices))
-    input_str = '\n'.join([input_str] + [f'{i:>3d}: {choice}' for i, choice in choices.items()] + ['Choice: '])
+    input_str = '\n'.join([input_str] + ['{:>3d}: {}'.format(i, c) for i, c in choices.items()] + ['Choice: '])
     result = None
     while result is None:
         try:

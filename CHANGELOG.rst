@@ -1,5 +1,8 @@
 Changes
 =======
+v1.9.1 - 2018-04-04
+ * Compatible with Python 3.5
+
 v1.9.0 - 2018-04-04
  * Refactor test to remove TestCase inheritance and use purely pytest.
  * Add inputs module with some functions for asking user data.
