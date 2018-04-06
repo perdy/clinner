@@ -1,5 +1,8 @@
 Changes
 =======
+v1.9.2 - 2018-04-06
+ * SIGINT handler for shell commands.
+
 v1.9.1 - 2018-04-04
  * Compatible with Python 3.5
 

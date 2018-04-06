@@ -6,6 +6,8 @@ from collections import OrderedDict
 from importlib import import_module
 from subprocess import Popen
 
+import signal
+
 from clinner.builder import Builder
 from clinner.cli import CLI
 from clinner.command import Type, command
@@ -191,7 +193,14 @@ class BaseMain(metaclass=MainMeta):
                 try:
                     p.wait()
                 except KeyboardInterrupt:
-                    pass
+                    self.cli.logger.info('Soft quit signal received, waiting the process to stop')
+                    p.send_signal(signal.SIGINT)
+                    try:
+                        p.wait()
+                    except KeyboardInterrupt:
+                        self.cli.logger.info('Hard quit signal received, killing the process immediately')
+                        p.send_signal(signal.SIGKILL)
+                        p.wait(timeout=3)
 
             result = p.returncode
 
