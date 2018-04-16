@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import shutil
 import sys
 
-from pip.download import PipSession
-from pip.req import parse_requirements as requirements
 from setuptools import Command, setup
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -14,15 +13,14 @@ if sys.version_info[0] == 2:
     from codecs import open
 
 
-def parse_requirements(f):
-    return [str(r.req) for r in requirements(f, session=PipSession())]
+def parse_requirements(requirements_file):
+    with open(requirements_file) as f:
+        return [l.strip().split(';')[0] for l in f if re.match(r'[a-zA-Z].*', l.strip())]
 
 
 # Read requirements
 _requirements_file = os.path.join(BASE_DIR, 'requirements.txt')
-_tests_requirements_file = os.path.join(BASE_DIR, 'requirements-tests.txt')
 _REQUIRES = parse_requirements(_requirements_file)
-_TESTS_REQUIRES = parse_requirements(_tests_requirements_file)
 
 # Read description
 with open(os.path.join(BASE_DIR, 'README.rst'), encoding='utf-8') as f:
@@ -64,7 +62,6 @@ setup(
     ],
     include_package_data=True,
     install_requires=_REQUIRES,
-    tests_require=_TESTS_REQUIRES,
     extras_require={
         'dev': [
             'setuptools',
