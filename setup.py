@@ -15,7 +15,7 @@ if sys.version_info[0] == 2:
 
 def parse_requirements(requirements_file):
     with open(requirements_file) as f:
-        return [l.strip() for l in f if re.match(r'[a-zA-Z].*', l.strip())]
+        return [l.strip().split(';')[0] for l in f if re.match(r'[a-zA-Z].*', l.strip())]
 
 
 # Read requirements
