@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+colorama = "*"
+colorlog = "*"
+
+[dev-packages]
+coverage = "*"
+prospector = "*"
+pytest = "*"
+pytest-xdist = "*"
+pytest-cov = "*"
+Sphinx = "*"
+sphinx_rtd_theme = "*"
+tox = "*"
+
+[requires]
+python_version = "3.6"

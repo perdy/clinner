@@ -1,5 +1,8 @@
 Changes
 =======
+v1.9.3 - 2018-04-17
+ * Update setup.py to avoid dependencies and use Pipfile instead of requirements.txt"
+
 v1.9.2 - 2018-04-06
  * SIGINT handler for shell commands.
 
