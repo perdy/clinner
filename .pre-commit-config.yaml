@@ -23,8 +23,6 @@
     -   id: black
         name: Black - Code Style
         entry: black
-        args:
-        - --line-length=120
         language: system
         types: [python]
     -   id: isort
