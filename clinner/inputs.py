@@ -8,16 +8,16 @@ def bool_input(input_str: str) -> str:
     :param input_str: Message to print.
     :return: User response.
     """
-    input_str = input_str + ' [Y|n] '
+    input_str = input_str + " [Y|n] "
     result = None
     while result is None:
         response = input(input_str)
-        if response in ('', 'y', 'Y'):
+        if response in ("", "y", "Y"):
             result = True
-        elif response in ('n', 'N'):
+        elif response in ("n", "N"):
             result = False
         else:
-            print('Wrong option')
+            print("Wrong option")
 
     return result
 
@@ -31,7 +31,7 @@ def choices_input(input_str: str, choices: List[Any]) -> str:
     :return: User response.
     """
     choices = dict(enumerate(choices))
-    input_str = '\n'.join([input_str] + ['{:>3d}: {}'.format(i, c) for i, c in choices.items()] + ['Choice: '])
+    input_str = "\n".join([input_str] + ["{:>3d}: {}".format(i, c) for i, c in choices.items()] + ["Choice: "])
     result = None
     while result is None:
         try:
@@ -42,12 +42,12 @@ def choices_input(input_str: str, choices: List[Any]) -> str:
             else:
                 raise ValueError
         except ValueError:
-            print('Wrong option')
+            print("Wrong option")
 
     return result
 
 
-def default_input(input_str: str, default: Any=None) -> str:
+def default_input(input_str: str, default: Any = None) -> str:
     """
     Prints a message offering a default value.
 
@@ -57,7 +57,7 @@ def default_input(input_str: str, default: Any=None) -> str:
     """
 
     if default is None:
-        default = ''
+        default = ""
 
-    input_str = input_str + ' [{}]: '.format(default)
+    input_str = input_str + " [{}]: ".format(default)
     return input(input_str) or default

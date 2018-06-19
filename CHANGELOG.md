@@ -1,5 +1,4 @@
-Changes
-=======
+# Changes
 v1.9.4 - 2018-04-24
  * Adds long description to setup.
 

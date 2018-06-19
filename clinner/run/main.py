@@ -3,26 +3,32 @@ import argparse  # noqa
 from clinner.run.base import BaseMain
 from clinner.run.mixins import HealthCheckMixin
 
-__all__ = ['Main', 'HealthCheckMain']
+__all__ = ["Main", "HealthCheckMain"]
 
 
 class Main(BaseMain):
-    def add_arguments(self, parser: 'argparse.ArgumentParser'):
+    def add_arguments(self, parser: "argparse.ArgumentParser"):
         """
         Add to parser all necessary arguments for this Main.
 
         :param parser: Argument parser.
         """
-        parser.add_argument('-s', '--settings',
-                            help='Module or object with Clinner settings in format "package.module[:Object]"')
+        parser.add_argument(
+            "-s", "--settings", help='Module or object with Clinner settings in format "package.module[:Object]"'
+        )
         verbose_group = parser.add_mutually_exclusive_group()
-        verbose_group.add_argument('-q', '--quiet', action='store_true',
-                                   help='Quiet mode. No standard output other than executed application')
-        verbose_group.add_argument('-v', '--verbose', action='count', default=0,
-                                   help='Verbose level (This option is additive)')
-        parser.add_argument('--dry-run', action='store_true',
-                            help='Dry run. Skip commands execution, useful to check which commands will be executed '
-                                 'and execution order')
+        verbose_group.add_argument(
+            "-q", "--quiet", action="store_true", help="Quiet mode. No standard output other than executed application"
+        )
+        verbose_group.add_argument(
+            "-v", "--verbose", action="count", default=0, help="Verbose level (This option is additive)"
+        )
+        parser.add_argument(
+            "--dry-run",
+            action="store_true",
+            help="Dry run. Skip commands execution, useful to check which commands will be executed "
+            "and execution order",
+        )
 
     def run(self, *args, **kwargs):
         """
@@ -38,8 +44,8 @@ class Main(BaseMain):
         cmd_kwargs = vars(self.args)
         cmd_kwargs.update(kwargs)
 
-        command = cmd_kwargs['command']
-        settings = cmd_kwargs['settings']
+        command = cmd_kwargs["command"]
+        settings = cmd_kwargs["settings"]
 
         self.cli.print_header(command=command, settings=settings)
 
@@ -53,4 +59,5 @@ class HealthCheckMain(HealthCheckMixin, Main):
     """
     Main class with health check behavior.
     """
+
     pass

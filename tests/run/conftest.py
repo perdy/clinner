@@ -7,5 +7,4 @@ from clinner.command import command
 
 @command
 def foobar(*args, **kwargs):
-    kwargs['q'].put(42)
-
+    kwargs["q"].put(42)

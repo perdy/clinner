@@ -1,12 +1,11 @@
 import argparse
 import logging
 import os
+import signal
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from importlib import import_module
 from subprocess import Popen
-
-import signal
 
 from clinner.builder import Builder
 from clinner.cli import CLI
@@ -14,7 +13,7 @@ from clinner.command import Type, command
 from clinner.exceptions import CommandArgParseError, CommandTypeError
 from clinner.settings import settings
 
-__all__ = ['MainMeta', 'BaseMain']
+__all__ = ["MainMeta", "BaseMain"]
 
 
 class MainMeta(ABCMeta):
@@ -24,8 +23,8 @@ class MainMeta(ABCMeta):
             Add all environment variables defined in all inject methods.
             """
             # Gather inject methods from bases and current class_dict
-            methods = {k: v for b in bases for k, v in b.__dict__.items() if k.startswith('inject_')}
-            methods.update({k: v for k, v in namespace.items() if k.startswith('inject_')})
+            methods = {k: v for b in bases for k, v in b.__dict__.items() if k.startswith("inject_")}
+            methods.update({k: v for k, v in namespace.items() if k.startswith("inject_")})
 
             for method_name, method in methods.items():
                 method(self)
@@ -40,19 +39,19 @@ class MainMeta(ABCMeta):
             self._commands_arguments(parser, parser_class)
 
             for base in reversed(bases):
-                if hasattr(base, 'add_arguments'):
-                    getattr(base, 'add_arguments')(self, parser)
+                if hasattr(base, "add_arguments"):
+                    getattr(base, "add_arguments")(self, parser)
 
-            if hasattr(self, 'add_arguments'):
+            if hasattr(self, "add_arguments"):
                 self.add_arguments(parser)
 
-        namespace['inject'] = inject
-        namespace['_add_arguments'] = add_arguments
+        namespace["inject"] = inject
+        namespace["_add_arguments"] = add_arguments
 
         cmds = {}
-        for command_fqn in namespace.get('commands', []):
+        for command_fqn in namespace.get("commands", []):
             try:
-                m, c = command_fqn.rsplit('.', 1)
+                m, c = command_fqn.rsplit(".", 1)
                 if c not in namespace:
                     getattr(import_module(m), c)
                     cmds[c] = command.register[c]
@@ -61,7 +60,7 @@ class MainMeta(ABCMeta):
             except (ImportError, AttributeError):
                 raise ImportError("Command not found '{}'".format(command_fqn))
 
-        namespace['_commands'] = OrderedDict(sorted(cmds.items(), key=lambda t: t[0])) if cmds else None
+        namespace["_commands"] = OrderedDict(sorted(cmds.items(), key=lambda t: t[0])) if cmds else None
 
         return super(MainMeta, mcs).__new__(mcs, name, bases, namespace)
 
@@ -90,33 +89,33 @@ class BaseMain(metaclass=MainMeta):
             self.inject()
 
             # Get settings from args or envvar
-            self.settings = self.args.settings or os.environ.get('CLINNER_SETTINGS')
+            self.settings = self.args.settings or os.environ.get("CLINNER_SETTINGS")
 
             # Load settings
             settings.build_from_module(self.settings)
 
-    def _commands_arguments(self, parser: 'argparse.ArgumentParser', parser_class=None):
+    def _commands_arguments(self, parser: "argparse.ArgumentParser", parser_class=None):
         """
         Add arguments for each command to parser.
 
         :param parser: Parser
         """
         # Create subparser for each command
-        subparsers_kwargs = {'parser_class': lambda **kwargs: parser_class(self, **kwargs)} if parser_class else {}
-        subparsers = parser.add_subparsers(title='Commands', dest='command', **subparsers_kwargs)
+        subparsers_kwargs = {"parser_class": lambda **kwargs: parser_class(self, **kwargs)} if parser_class else {}
+        subparsers = parser.add_subparsers(title="Commands", dest="command", **subparsers_kwargs)
         subparsers.required = True
 
         cmds = self._commands if self._commands is not None else command.register
         for cmd_name, cmd in cmds.items():
-            subparser_opts = cmd['parser']
-            if cmd['type'] == Type.SHELL:
-                subparser_opts['add_help'] = False
+            subparser_opts = cmd["parser"]
+            if cmd["type"] == Type.SHELL:
+                subparser_opts["add_help"] = False
 
             p = subparsers.add_parser(cmd_name, **subparser_opts)
-            if callable(cmd['arguments']):
-                cmd['arguments'](p)
+            if callable(cmd["arguments"]):
+                cmd["arguments"](p)
             else:
-                for argument in cmd['arguments']:
+                for argument in cmd["arguments"]:
                     try:
                         if len(argument) == 2:
                             args, kwargs = argument
@@ -134,7 +133,7 @@ class BaseMain(metaclass=MainMeta):
                         p.add_argument(*args, **kwargs)
 
     @abstractmethod
-    def add_arguments(self, parser: 'argparse.ArgumentParser'):
+    def add_arguments(self, parser: "argparse.ArgumentParser"):
         """
         Add to parser all necessary arguments for this Main.
 
@@ -147,7 +146,7 @@ class BaseMain(metaclass=MainMeta):
         command Line application arguments.
         """
         if parser is None:
-            parser = argparse.ArgumentParser(description=self.description, conflict_handler='resolve')
+            parser = argparse.ArgumentParser(description=self.description, conflict_handler="resolve")
 
         # Call inner method that adds arguments from all classes (defined in metaclass)
         self._add_arguments(parser, parser_class)
@@ -163,11 +162,11 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to Process.
         :return: Command return code.
         """
-        self.cli.logger.debug('- [Python] %s.%s', str(cmd.__module__), str(cmd.__qualname__))
+        self.cli.logger.debug("- [Python] %s.%s", str(cmd.__module__), str(cmd.__qualname__))
 
         result = 0
 
-        if not getattr(self.args, 'dry_run', False):
+        if not getattr(self.args, "dry_run", False):
             # Run command
             result = cmd(*args, **kwargs)
 
@@ -182,23 +181,23 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to Popen.
         :return: Command return code.
         """
-        self.cli.logger.debug('- [Shell] %s', ' '.join(cmd))
+        self.cli.logger.debug("- [Shell] %s", " ".join(cmd))
 
         result = 0
 
-        if not getattr(self.args, 'dry_run', False):
+        if not getattr(self.args, "dry_run", False):
             # Run command
             p = Popen(args=cmd, *args, **kwargs)
             while p.returncode is None:  # pragma: no cover
                 try:
                     p.wait()
                 except KeyboardInterrupt:
-                    self.cli.logger.info('Soft quit signal received, waiting the process to stop')
+                    self.cli.logger.info("Soft quit signal received, waiting the process to stop")
                     p.send_signal(signal.SIGINT)
                     try:
                         p.wait()
                     except KeyboardInterrupt:
-                        self.cli.logger.info('Hard quit signal received, killing the process immediately')
+                        self.cli.logger.info("Hard quit signal received, killing the process immediately")
                         p.send_signal(signal.SIGKILL)
                         p.wait(timeout=3)
 
@@ -218,7 +217,7 @@ class BaseMain(metaclass=MainMeta):
         # Get list of commands
         commands, command_type = Builder.build_command(input_command, *args, **kwargs)
 
-        self.cli.logger.debug('Running commands:') if commands else None
+        self.cli.logger.debug("Running commands:") if commands else None
         return_code = 0
         for c in commands:
             if command_type == Type.PYTHON:

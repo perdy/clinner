@@ -1,13 +1,13 @@
 import shlex
 from functools import partial, update_wrapper
-
 from typing import Callable, List, Tuple, Union
 
-from clinner.command import Type as CommandType, command
+from clinner.command import Type as CommandType
+from clinner.command import command
 from clinner.exceptions import CommandTypeError
 from clinner.settings import settings
 
-__all__ = ['Builder']
+__all__ = ["Builder"]
 
 
 class Builder:
@@ -57,8 +57,8 @@ class Builder:
         cmd = command.register[command_name]
 
         # Get command callable
-        method = cmd['callable']
-        command_type = cmd['type']
+        method = cmd["callable"]
+        command_type = cmd["type"]
 
         # Get default args if necessary
         if not args:

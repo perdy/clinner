@@ -6,13 +6,14 @@ except ImportError:
     BaseCommand = object
     CommandParser = None
 
-__all__ = ['DjangoCommand']
+__all__ = ["DjangoCommand"]
 
 
 class DjangoCommand(BaseCommand):
     """
     Wrapper that makes a Django command from a Main class, including parsers only for commands.
     """
+
     main_class = None
 
     def __init__(self, *args, **kwargs):

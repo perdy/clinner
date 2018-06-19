@@ -3,11 +3,10 @@
 Settings.
 """
 import os
-from functools import partial
-from functools import update_wrapper
+from functools import partial, update_wrapper
 from importlib import import_module
 
-__all__ = ['settings']
+__all__ = ["settings"]
 
 
 class reset:  # noqa
@@ -29,7 +28,7 @@ class Settings:
 
     def __init__(self):
         self.reset_default()
-        module_path = os.environ.get('CLINNER_SETTINGS')
+        module_path = os.environ.get("CLINNER_SETTINGS")
         if module_path:
             self.build_from_module(module_path)
 
@@ -51,7 +50,7 @@ class Settings:
         """
         try:
             try:
-                m, c = path.rsplit(':', 1)
+                m, c = path.rsplit(":", 1)
                 module = import_module(m)
                 s = getattr(module, c)
             except ValueError:
@@ -86,6 +85,7 @@ class Settings:
             module = self.import_settings(module)
 
         # Builder args
-        self.default_args = self.get(module, 'clinner_default_args', {})
+        self.default_args = self.get(module, "clinner_default_args", {})
+
 
 settings = Settings()

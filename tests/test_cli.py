@@ -14,14 +14,14 @@ class TestCaseCLI:
         return cli
 
     def test_init_with_colorlog(self):
-        with patch('clinner.cli._colorlog', True), patch('colorlog.StreamHandler') as handler_mock:
+        with patch("clinner.cli._colorlog", True), patch("colorlog.StreamHandler") as handler_mock:
             CLI()
 
             assert handler_mock.call_count == 1
             assert handler_mock.return_value.setFormatter.call_count == 1
 
     def test_init_without_colorlog(self):
-        with patch('clinner.cli._colorlog', False), patch('clinner.cli.logging.StreamHandler') as handler_mock:
+        with patch("clinner.cli._colorlog", False), patch("clinner.cli.logging.StreamHandler") as handler_mock:
             CLI()
 
             assert handler_mock.call_count == 1
@@ -40,21 +40,21 @@ class TestCaseCLI:
 
     def test_print_return_ok(self, cli):
         cli.print_return(0)
-        expected_calls = [call(logging.INFO, 'Return code: %d', 0)]
+        expected_calls = [call(logging.INFO, "Return code: %d", 0)]
         assert cli.logger.log.call_args_list == expected_calls
 
     def test_print_return_none(self, cli):
         cli.print_return(None)
-        expected_calls = [call(logging.INFO, 'Return code: %d', 0)]
+        expected_calls = [call(logging.INFO, "Return code: %d", 0)]
         assert cli.logger.log.call_args_list == expected_calls
 
     def test_print_return_error(self, cli):
         cli.print_return(1)
-        expected_calls = [call(logging.ERROR, 'Return code: %d', 1)]
+        expected_calls = [call(logging.ERROR, "Return code: %d", 1)]
         assert cli.logger.log.call_args_list == expected_calls
 
     def test_print_header(self, cli):
         cli.print_header(foo=True, bar=1)
         msg = cli.logger.info.call_args[0][0]
-        assert 'Foo: True' in msg
-        assert 'Bar: 1' in msg
+        assert "Foo: True" in msg
+        assert "Bar: 1" in msg

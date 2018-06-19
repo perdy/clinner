@@ -2,7 +2,7 @@ import time
 from abc import ABCMeta, abstractmethod
 from random import random
 
-__all__ = ['HealthCheckMixin']
+__all__ = ["HealthCheckMixin"]
 
 
 class HealthCheckMixin(metaclass=ABCMeta):
@@ -14,10 +14,16 @@ class HealthCheckMixin(metaclass=ABCMeta):
     These retries uses an exponential backoff to calculate timing.
     """
 
-    def add_arguments(self, parser: 'argparse.ArgumentParser'):
-        parser.add_argument('-r', '--retry', help='Health check retries before run command. Disabled with 0, max 10.',
-                            type=int, default=5, choices=range(11))
-        parser.add_argument('--skip-check', help='Skip health check.', default=False, action='store_true')
+    def add_arguments(self, parser: "argparse.ArgumentParser"):
+        parser.add_argument(
+            "-r",
+            "--retry",
+            help="Health check retries before run command. Disabled with 0, max 10.",
+            type=int,
+            default=5,
+            choices=range(11),
+        )
+        parser.add_argument("--skip-check", help="Skip health check.", default=False, action="store_true")
 
     @abstractmethod
     def health_check(self):
@@ -36,12 +42,12 @@ class HealthCheckMixin(metaclass=ABCMeta):
         """
         if not self.args.skip_check and self.args.retry:
             health = False
-            self.cli.logger.info('Performing healthcheck...')
+            self.cli.logger.info("Performing healthcheck...")
             timeout = random()
 
             for i in (i for i in range(self.args.retry) if not health):
                 if not self.health_check():
-                    self.cli.logger.warning('Health check failed, retrying ({}/{})'.format(i + 1, self.args.retry))
+                    self.cli.logger.warning("Health check failed, retrying ({}/{})".format(i + 1, self.args.retry))
                     time.sleep(timeout)
                     timeout *= 2.
                 else:
@@ -49,7 +55,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
                     health = True
 
             if not health:
-                self.cli.logger.error('Retry attempts exceeded, health check failed')
+                self.cli.logger.error("Retry attempts exceeded, health check failed")
         else:
             health = True
 
@@ -72,8 +78,8 @@ class HealthCheckMixin(metaclass=ABCMeta):
         cmd_kwargs = vars(self.args)
         cmd_kwargs.update(kwargs)
 
-        command = cmd_kwargs['command']
-        settings = cmd_kwargs['settings']
+        command = cmd_kwargs["command"]
+        settings = cmd_kwargs["settings"]
 
         self.cli.print_header(command=command, settings=settings)
 
