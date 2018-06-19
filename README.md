@@ -171,15 +171,3 @@ if __name__ == '__main__':
 Check [Clinner documentation] to see more advanced examples.
 
 [Clinner documentation]: http://clinner.readthedocs.io
-.. |build-status| image:: https://travis-ci.org/PeRDy/clinner.svg?branch=master
-    :alt: build status
-    :scale: 100%
-    :target: https://travis-ci.org/PeRDy/clinner
-.. |coverage| image:: https://coveralls.io/repos/github/PeRDy/clinner/badge.svg
-    :alt: coverage
-    :scale: 100%
-    :target: https://coveralls.io/github/PeRDy/clinner
-.. |version| image:: https://badge.fury.io/py/clinner.svg
-    :alt: version
-    :scale: 100%
-    :target: https://badge.fury.io/py/clinner
