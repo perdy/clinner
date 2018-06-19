@@ -1,9 +1,19 @@
 # Changes
+v1.10.0 - 2018-06-19
+ * Use poetry for handling packaging and requirements.
+ * Integrate black as code formatter.
+ * Integrate flake8 as code linter.
+ * Integrate isort as import formatter.
+ * Replace tox previous tasks to use black, flake8 and isort.
+ * New command for running black.
+ * New command for running flake8.
+ * New command for running isort.
+
 v1.9.4 - 2018-04-24
  * Adds long description to setup.
 
 v1.9.3 - 2018-04-17
- * Update setup.py to avoid dependencies and use Pipfile instead of requirements.txt"
+ * Update setup.py to avoid dependencies and use Pipfile instead of requirements.txt
 
 v1.9.2 - 2018-04-06
  * SIGINT handler for shell commands.
