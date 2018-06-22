@@ -71,7 +71,7 @@ class TestCaseBaseMain:
         args = ["foo"]
         main = main_cls(args)
 
-        assert main.cli.set_level.call_args_list == [call(logging.INFO)]
+        assert main.cli.set_level.call_args_list == [call(logging.WARNING)]
 
     @patch("clinner.run.base.CLI")
     def test_dry_run_python(self, cli, main_cls):

@@ -61,12 +61,12 @@ class CLI:
         if code is None:
             code = 0
 
-        level = logging.INFO if code == 0 else logging.ERROR
+        level = logging.DEBUG if code == 0 else logging.ERROR
         self.logger.log(level, "Return code: %d", code)
 
     def print_header(self, **kwargs):
         command = kwargs.pop("command")
-        header = f"{self.SEP}\n{command}\n{self.SEP}"
+        header = "{0}\n{1}\n{0}".format(self.SEP, command)
         self.logger.info(header)
 
         fields = OrderedDict(sorted(kwargs.items(), key=lambda x: x[0]))
@@ -76,8 +76,10 @@ class CLI:
 
     def print_commands_list(self, commands: typing.List[str], commands_type: Type):
         if commands_type == Type.PYTHON:
-            cmds = "\n".join([f" - [{commands_type.value}] {str(c.__module__), str(c.__qualname__)}" for c in commands])
+            cmds = "\n".join(
+                [" - [{}] {}.{}".format(commands_type.value, str(c.__module__), str(c.__qualname__)) for c in commands]
+            )
         else:
-            cmds = "\n".join([f" - [{commands_type.value}] {' '.join(c)}" for c in commands])
+            cmds = "\n".join([" - [{}] {}".format(commands_type.value, " ".join(c)) for c in commands])
 
         self.logger.debug("--------\nCommands\n--------\n%s", cmds)

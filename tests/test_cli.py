@@ -40,12 +40,12 @@ class TestCaseCLI:
 
     def test_print_return_ok(self, cli):
         cli.print_return(0)
-        expected_calls = [call(logging.INFO, "Return code: %d", 0)]
+        expected_calls = [call(logging.DEBUG, "Return code: %d", 0)]
         assert cli.logger.log.call_args_list == expected_calls
 
     def test_print_return_none(self, cli):
         cli.print_return(None)
-        expected_calls = [call(logging.INFO, "Return code: %d", 0)]
+        expected_calls = [call(logging.DEBUG, "Return code: %d", 0)]
         assert cli.logger.log.call_args_list == expected_calls
 
     def test_print_return_error(self, cli):
@@ -54,7 +54,9 @@ class TestCaseCLI:
         assert cli.logger.log.call_args_list == expected_calls
 
     def test_print_header(self, cli):
-        cli.print_header(foo=True, bar=1)
-        msg = cli.logger.info.call_args[0][0]
-        assert "Foo: True" in msg
-        assert "Bar: 1" in msg
+        cli.print_header(command="foobar", foo=True, bar=1)
+        command_msg = cli.logger.info.call_args[0][0]
+        assert "foobar" in command_msg
+        args_msg = cli.logger.debug.call_args[0][0]
+        assert "foo: True" in args_msg
+        assert "bar: 1" in args_msg
