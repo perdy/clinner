@@ -45,13 +45,9 @@ class Main(BaseMain):
         cmd_kwargs.update(kwargs)
 
         command = cmd_kwargs["command"]
-        settings = cmd_kwargs["settings"]
-
-        self.cli.print_header(command=command, settings=settings)
 
         return_code = self.run_command(command, *cmd_args, **cmd_kwargs)
 
-        self.cli.print_return(return_code)
         return return_code
 
 

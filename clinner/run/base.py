@@ -83,7 +83,7 @@ class BaseMain(metaclass=MainMeta):
             elif self.args.verbose >= 2:
                 self.cli.set_level(logging.DEBUG)
             else:  # Default log level
-                self.cli.set_level(logging.INFO)
+                self.cli.set_level(logging.WARNING)
 
             # Inject parameters related to current stage as environment variables
             self.inject()
@@ -162,7 +162,7 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to Process.
         :return: Command return code.
         """
-        self.cli.logger.debug("- [Python] %s.%s", str(cmd.__module__), str(cmd.__qualname__))
+        self.cli.logger.debug("- [python] %s.%s", str(cmd.__module__), str(cmd.__qualname__))
 
         result = 0
 
@@ -181,7 +181,7 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to Popen.
         :return: Command return code.
         """
-        self.cli.logger.debug("- [Shell] %s", " ".join(cmd))
+        self.cli.logger.info("[shell] %s", " ".join(cmd))
 
         result = 0
 
@@ -217,7 +217,9 @@ class BaseMain(metaclass=MainMeta):
         # Get list of commands
         commands, command_type = Builder.build_command(input_command, *args, **kwargs)
 
-        self.cli.logger.debug("Running commands:") if commands else None
+        self.cli.print_header(**kwargs)
+        self.cli.print_commands_list(commands, command_type)
+
         return_code = 0
         for c in commands:
             if command_type == Type.PYTHON:
@@ -226,6 +228,8 @@ class BaseMain(metaclass=MainMeta):
                 return_code = self.run_shell(c)
             else:  # pragma: no cover
                 raise CommandTypeError(command_type)
+
+            self.cli.print_return(return_code)
 
             # Break on non-zero exit code.
             if return_code != 0:

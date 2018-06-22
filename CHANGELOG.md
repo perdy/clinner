@@ -1,4 +1,10 @@
 # Changes
+v1.11.0 - 2018-06-22
+ * Default logging level set as WARNING.
+ * Return code logs level set as DEBUG.
+ * DEBUG level shows commands list to be executed.
+ * Command arguments log level set as DEBUG.
+
 v1.10.0 - 2018-06-19
  * Use poetry for handling packaging and requirements.
  * Integrate black as code formatter.

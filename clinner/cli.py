@@ -1,6 +1,8 @@
 import logging
+import typing
 from collections import OrderedDict
-from typing import Optional
+
+from clinner.command import Type
 
 try:
     import colorlog
@@ -55,7 +57,7 @@ class CLI:
     def set_level(self, level):
         self.logger.setLevel(level)
 
-    def print_return(self, code: Optional[int]):
+    def print_return(self, code: typing.Optional[int]):
         if code is None:
             code = 0
 
@@ -63,12 +65,19 @@ class CLI:
         self.logger.log(level, "Return code: %d", code)
 
     def print_header(self, **kwargs):
+        command = kwargs.pop("command")
+        header = f"{self.SEP}\n{command}\n{self.SEP}"
+        self.logger.info(header)
+
         fields = OrderedDict(sorted(kwargs.items(), key=lambda x: x[0]))
-
         fmt = "{:<%d}: {}" % (max([len(x) for x in fields.keys()]),)
-        header_lines = [self.SEP]
-        for k, v in fields.items():
-            header_lines.append(fmt.format(k.capitalize(), v))
-        header_lines.append(self.SEP)
+        command_args = "---------\nArguments\n---------\n" + "\n".join([fmt.format(k, v) for k, v in fields.items()])
+        self.logger.debug(command_args)
 
-        self.logger.info("\n".join(header_lines))
+    def print_commands_list(self, commands: typing.List[str], commands_type: Type):
+        if commands_type == Type.PYTHON:
+            cmds = "\n".join([f" - [{commands_type.value}] {str(c.__module__), str(c.__qualname__)}" for c in commands])
+        else:
+            cmds = "\n".join([f" - [{commands_type.value}] {' '.join(c)}" for c in commands])
+
+        self.logger.debug("--------\nCommands\n--------\n%s", cmds)
