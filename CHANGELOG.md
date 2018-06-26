@@ -1,4 +1,7 @@
 # Changes
+v1.12.0 - 2018-06-26
+ * New commands: Python async functions.
+
 v1.11.1 - 2018-06-22
  * Minor compatibility fixes.
 

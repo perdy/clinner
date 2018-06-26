@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import logging
 import os
 import signal
@@ -168,7 +169,10 @@ class BaseMain(metaclass=MainMeta):
 
         if not getattr(self.args, "dry_run", False):
             # Run command
-            result = cmd(*args, **kwargs)
+            if asyncio.iscoroutinefunction(cmd.func.func):
+                result = asyncio.get_event_loop().run_until_complete(cmd(*args, **kwargs))
+            else:
+                result = cmd(*args, **kwargs)
 
         return result
 

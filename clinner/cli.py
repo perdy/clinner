@@ -74,12 +74,11 @@ class CLI:
         command_args = "---------\nArguments\n---------\n" + "\n".join([fmt.format(k, v) for k, v in fields.items()])
         self.logger.debug(command_args)
 
-    def print_commands_list(self, commands: typing.List[str], commands_type: Type):
+    def print_commands_list(self, command, commands_type: Type):
         if commands_type == Type.PYTHON:
-            cmds = "\n".join(
-                [" - [{}] {}.{}".format(commands_type.value, str(c.__module__), str(c.__qualname__)) for c in commands]
-            )
+            cmds = " - [{}] {}.{}".format(commands_type.value, str(command.__module__), str(command.__qualname__))
         else:
-            cmds = "\n".join([" - [{}] {}".format(commands_type.value, " ".join(c)) for c in commands])
+            cmds = "\n".join([" - [{}] {}".format(commands_type.value, " ".join(c)) for c in command])
 
-        self.logger.debug("--------\nCommands\n--------\n%s", cmds)
+        msg = "--------\nCommands\n--------\n" + cmds
+        self.logger.debug(msg)

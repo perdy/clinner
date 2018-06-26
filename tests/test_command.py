@@ -57,6 +57,20 @@ class TestCaseCommand:
         del command.register["foo"]
 
     @patch("clinner.run.base.CLI")
+    def test_command_python_async(self, cli):
+        @command(command_type=Type.PYTHON)
+        async def foo(*args, **kwargs):
+            kwargs["q"].put(42)
+
+        queue = Queue()
+        args = ["foo"]
+        Main(args).run(q=queue)
+
+        assert queue.get() == 42
+
+        del command.register["foo"]
+
+    @patch("clinner.run.base.CLI")
     def test_command_with_args(self, cli):
         @command(command_type=Type.PYTHON, args=((("-b", "--bar"),),))  # args
         def foo(*args, **kwargs):

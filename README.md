@@ -7,9 +7,27 @@
 * **Status:** Production/Stable
 * **Author:** José Antonio Perdiguero López
 
-Command Line Interface builder that helps creating an entry point for your application.
+Clinner is a library that provides some useful tools to create command line interfaces for your application
 
-Check full [Clinner documentation].
+Check [Clinner docs].
+
+## Features
+Can **define commands** in multiple way:
+* List of shell commands such as `["docker build", "docker push"]`.
+* Python functions.
+* Python async functions.
+
+Clinner provides a set of **commands ready to use** like:
+* Black.
+* Flake8.
+* Isort.
+* Nosetest.
+* Prospector.
+* Pytest.
+* Sphinx.
+* Tox.
+
+Hooks for **injecting variables** or **add global arguments** to your script.
 
 ## Quick start
 Install this package using pip:
@@ -49,15 +67,15 @@ This decorator allows to be used as a common decorator without arguments, where 
 
 ```python
 @command
-def foobar(bar):
+def foobar(*args, **kwargs):
     pass
 ```
 
 Or specifying the type:
 
 ```python
-@command(command_type=Type.PYTHON)
-def foobar(bar):
+@command(command_type=CommandType.PYTHON)
+def foobar(*args, **kwargs):
     pass
 ```
 
@@ -74,34 +92,46 @@ def foobar(*args, **kwargs):
 All commands will be registered in a command register that can be accessed through ``command.register``. Each entry in
 this register is a dictionary with the fields declared at the beginning of this section.
 
+### Shell command
+Example of running `ls -la` shell command.
+
+```python
+@command(command_type=CommandType.SHELL)
+def lsla(*args, **kwargs):
+    return [shlex.split("ls -la")]
+```
+
+### Python function
+Run a python function.
+
+```python
+@command
+def foo(*args, **kwargs):
+    return "foo"
+```
+
+### Python async function
+Run a python async function.
+
+```python
+@command
+async def bar(*args, **kwargs):
+    await asyncio.sleep(1)
+    return "bar"
+```
+
 ## Main
 A main class is defined to ease the creation of command line applications. This class follows the process:
 
 1. Create a parser using ``argparse.ArgumentParser`` for the application:
-
+    
     a) Calling all ``add_arguments(parser)`` methods from all super classes, e.g: ``clinner.mixins.HealthCheckMixin``.
+    
     b) Addding a subparser for each command with their specific arguments.
 
 2. Parse arguments using the argument parser created previously.
 
 3. Inject variables into environment calling all super classes methods whose name starts with ``inject_``.
-
-4. Load settings module from **CLINNER_SETTINGS** environment variable. More details below.
-
-
-## Settings
-Clinner settings can be specified through **CLINNER_SETTINGS** environment variable or using ``-s`` or ``--settings``
-command line flags during invocation. The format to specify settings module or class should be either ``package.module``
-or ``package.module:Class``.
-
-### Default Arguments
-Default arguments for commands. Let a command `foo` declared:
-
-```python
-default_args = {
-    'foo': ['-v', '--bar', 'foobar'],
-}
-```
 
 ## Examples
 Some Clinner examples.
@@ -111,7 +141,6 @@ Example of a simple main with two defined commands `foo` and `bar`.
 
 ```python
 #!/usr/bin/env python
-import os
 import shlex
 import sys
 
@@ -119,7 +148,7 @@ from clinner.command import command, Type as CommandType
 from clinner.run.main import Main
 
 
-@command(command_type=CommandType.SHELL
+@command(command_type=CommandType.SHELL,
          args=(('-i', '--input'),
                ('-o', '--output')),
          parser_opts={'help': 'Foo command'})
@@ -168,6 +197,6 @@ if __name__ == '__main__':
     sys.exit(Build().run())
 ```
 
-Check [Clinner documentation] to see more advanced examples.
+Check [Clinner docs] to see more advanced examples.
 
-[Clinner documentation]: http://clinner.readthedocs.io
+[Clinner docs]: http://clinner.readthedocs.io

@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 
 from clinner.cli import CLI
+from clinner.command import Type, command
 
 
 class TestCaseCLI:
@@ -60,3 +61,18 @@ class TestCaseCLI:
         args_msg = cli.logger.debug.call_args[0][0]
         assert "foo: True" in args_msg
         assert "bar: 1" in args_msg
+
+    def test_print_commands_list_shell(self, cli):
+        cli.print_commands_list(command=[["ls", "-la"], ["echo", "foo"]], commands_type=Type.SHELL)
+        msg = cli.logger.debug.call_args[0][0]
+        assert "[shell] ls -la" in msg
+        assert "[shell] echo foo" in msg
+
+    def test_print_commands_list_python(self, cli):
+        @command
+        def test_print_commands(*args, **kwargs):
+            pass
+
+        cli.print_commands_list(command=test_print_commands, commands_type=Type.PYTHON)
+        msg = cli.logger.debug.call_args[0][0]
+        assert "[python] tests.test_cli.TestCaseCLI.test_print_commands_list_python.<locals>.test_print_commands" in msg
