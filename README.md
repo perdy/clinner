@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/PeRDy/clinner/branch/master/graph/badge.svg)](https://codecov.io/gh/PeRDy/clinner)
 [![PyPI version](https://badge.fury.io/py/clinner.svg)](https://badge.fury.io/py/clinner)
 
-* **Version:** 1.11.1
+* **Version:** 1.12.0
 * **Status:** Production/Stable
 * **Author:** José Antonio Perdiguero López
 
