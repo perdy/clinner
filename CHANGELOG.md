@@ -1,4 +1,7 @@
 # Changes
+v1.12.1 - 2018-06-27
+ * Fix logging call.
+ 
 v1.12.0 - 2018-06-26
  * New commands: Python async functions.
 

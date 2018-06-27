@@ -63,7 +63,7 @@ class TestCaseCLI:
         assert "bar: 1" in args_msg
 
     def test_print_commands_list_shell(self, cli):
-        cli.print_commands_list(command=[["ls", "-la"], ["echo", "foo"]], commands_type=Type.SHELL)
+        cli.print_commands_list(commands=[["ls", "-la"], ["echo", "foo"]], commands_type=Type.SHELL)
         msg = cli.logger.debug.call_args[0][0]
         assert "[shell] ls -la" in msg
         assert "[shell] echo foo" in msg
@@ -73,6 +73,6 @@ class TestCaseCLI:
         def test_print_commands(*args, **kwargs):
             pass
 
-        cli.print_commands_list(command=test_print_commands, commands_type=Type.PYTHON)
+        cli.print_commands_list(commands=[test_print_commands], commands_type=Type.PYTHON)
         msg = cli.logger.debug.call_args[0][0]
         assert "[python] tests.test_cli.TestCaseCLI.test_print_commands_list_python.<locals>.test_print_commands" in msg
