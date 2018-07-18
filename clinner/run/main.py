@@ -44,7 +44,7 @@ class Main(BaseMain):
         cmd_kwargs = vars(self.args)
         cmd_kwargs.update(kwargs)
 
-        command = cmd_kwargs["command"]
+        command = cmd_kwargs.pop("command")
 
         return_code = self.run_command(command, *cmd_args, **cmd_kwargs)
 

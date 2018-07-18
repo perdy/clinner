@@ -64,8 +64,7 @@ class CLI:
         level = logging.DEBUG if code == 0 else logging.ERROR
         self.logger.log(level, "Return code: %d", code)
 
-    def print_header(self, **kwargs):
-        command = kwargs.pop("command")
+    def print_header(self, command, **kwargs):
         header = "{0}\n{1}\n{0}".format(self.SEP, command)
         self.logger.info(header)
 

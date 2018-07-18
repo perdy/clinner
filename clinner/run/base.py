@@ -218,10 +218,13 @@ class BaseMain(metaclass=MainMeta):
         :param kwargs: Dict of kwargs passed to run_<type> command.
         :return: Command return code.
         """
+        # Print header
+        self.cli.print_header(input_command, **kwargs)
+
         # Get list of commands
         commands, command_type = Builder.build_command(input_command, *args, **kwargs)
 
-        self.cli.print_header(**kwargs)
+        # Print command list
         self.cli.print_commands_list(commands, command_type)
 
         return_code = 0
