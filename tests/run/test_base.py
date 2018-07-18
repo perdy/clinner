@@ -6,6 +6,7 @@ from unittest.mock import call, patch
 import pytest
 
 from clinner.command import Type, command
+from clinner.exceptions import NotCommandError
 from clinner.run.main import Main
 
 
@@ -156,3 +157,18 @@ class TestCaseBaseMain:
         args, _ = main.parse_arguments(args=["-f", "1", "foo"], parser=parser)
 
         assert args.foo == 1
+
+    @patch("clinner.run.base.CLI")
+    def test_call_run_with_command(self, cli, main_cls):
+        main = main_cls(parse_args=False)
+
+        return_code = main.run(command="foo")
+
+        assert return_code == 42
+
+    @patch("clinner.run.base.CLI")
+    def test_call_run_without_command(self, cli, main_cls):
+        main = main_cls(parse_args=False)
+
+        with pytest.raises(NotCommandError):
+            main.run()

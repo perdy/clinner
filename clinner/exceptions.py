@@ -1,3 +1,7 @@
+class NotCommandError(Exception):
+    pass
+
+
 class WrongCommandError(KeyError):
     pass
 

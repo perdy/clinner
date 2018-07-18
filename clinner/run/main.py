@@ -1,5 +1,6 @@
 import argparse  # noqa
 
+from clinner.exceptions import NotCommandError
 from clinner.run.base import BaseMain
 from clinner.run.mixins import HealthCheckMixin
 
@@ -30,7 +31,7 @@ class Main(BaseMain):
             "and execution order",
         )
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, command=None, **kwargs):
         """
         Run specified command through system arguments.
 
@@ -38,13 +39,18 @@ class Main(BaseMain):
         list of strings through \*args.
 
         This method will print a header and the return code.
+
+        :param command: Explicit command. Use that command instead of the one passed by shell arguments.
         """
         cmd_args = self.unknown_args if not args else args
 
         cmd_kwargs = vars(self.args)
         cmd_kwargs.update(kwargs)
 
-        command = cmd_kwargs.pop("command")
+        try:
+            command = command or cmd_kwargs.pop("command")
+        except KeyError:
+            raise NotCommandError
 
         return_code = self.run_command(command, *cmd_args, **cmd_kwargs)
 

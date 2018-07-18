@@ -1,4 +1,10 @@
 # Changes
+v1.12.3 - 2018-07-18
+ * Main run accepts a command parameter that overrides sysarg.
+
+v1.12.2 - 2018-07-18
+ * Fix command pop in cli.
+
 v1.12.1 - 2018-06-27
  * Fix logging call.
  
