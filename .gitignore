@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -24,6 +25,7 @@ var/
 .installed.cfg
 *.egg
 *dist/
+pip-wheel-metadata/
 
 # Installer logs
 pip-log.txt
@@ -40,7 +42,17 @@ nosetests.xml
 coverage.xml
 *,cover
 .pytest_cache/
+.mypy_cache/
 .test_report/
+test-results/
 
-# Sphinx documentation
+## Docs
 docs/_build/
+site/
+
+node_modules
+*.vscode
+
+## Demo & Tests
+demo.db
+test.db

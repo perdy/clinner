@@ -1,7 +1,10 @@
+repos:
 -   repo: git@github.com:pre-commit/pre-commit-hooks
-    rev: master
+    rev: v4.1.0
     hooks:
     -   id: check-added-large-files
+        args:
+        - --maxkb=2000
     -   id: check-merge-conflict
     -   id: check-xml
     -   id: check-yaml
@@ -13,22 +16,32 @@
         args:
         - --autofix
         - --indent=2
+-   repo: git@github.com:alessandrojcm/commitlint-pre-commit-hook
+    rev: v7.0.1
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
 -   repo: local
     hooks:
     -   id: flake8
         name: Flake8 - Code Linter
-        entry: flake8
+        entry: poetry run flake8
         language: system
         types: [python]
     -   id: black
         name: Black - Code Style
-        entry: black
+        entry: poetry run black
+        args:
+        - -q
+        - --safe
+        - --line-length=120
+        - .
         language: system
         types: [python]
     -   id: isort
         name: Isort - Sort Imports
-        entry: isort
+        entry: poetry run isort
         args:
-        - -e
+        - .
         language: system
         types: [python]

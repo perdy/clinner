@@ -5,25 +5,21 @@ description = "Command Line Interface builder that helps creating an entry point
 authors = ["José Antonio Perdiguero López <perdy@perdy.io>"]
 license = "GPL-3.0+"
 readme = "README.md"
-repository = "https://github.com/PeRDy/clinner"
+repository = "https://github.com/perdy/clinner"
 keywords = ["command", "cli", "interface", "run", "script"]
-
-[package]
-include = ["clinner/**/*.py"]
+include = []
+exclude = []
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.7"
 colorlog = "^3.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^3.6"
-pytest-xdist = "^1.22"
-pytest-cov = "^2.5"
-tox = "^3.0"
-ipython = "^6.4"
-sphinx = "^1.7"
-sphinx_rtd_theme = "^0.4.0"
-flake8 = "^3.5"
+pytest = "^7.0"
+pytest-xdist = "^2.5"
+pytest-cov = "^3.0"
+ipython = "^7.0"
+flake8 = "^4.0"
 
 [tool.black]
 line-length = 120
@@ -32,7 +28,87 @@ exclude = '''
 /(
     \.git
   | \.tox
+  | \.venv
   | build
   | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+atomic = true
+multi_line_output = 3
+include_trailing_comma = true
+line_length = 120
+skip_glob = [
+    "*/.venv/**",
+    "*/.tox/**",
+    "*/docs/**",
+    "*/build/**",
+    "*/dist/**",
+]
+
+[tool.pytest.ini_options]
+minversion = 3
+addopts = "-n auto --junitxml=./test-results/pytest/results.xml --no-cov-on-fail --cov-report=html --cov-report=xml --cov-report=term-missing --cov-config=pyproject.toml --cov=. --pdbcls=IPython.terminal.debugger:TerminalPdb"
+norecursedirs = [
+    "*settings*",
+    "*urls*",
+    ".tox*",
+    "*docs*",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = [
+    "."
+]
+branch = true
+omit = [
+    ".venv*",
+    "*settings*",
+    "*__init__.py",
+    "*__main__.py",
+    "*tests*",
+    "*/migrations/*",
+    "make",
+    "examples*",
+    "flama/authentication.py",
+    "flama/middleware.py",
+    "flama/testclient.py",
+]
+concurrency = ["thread", "gevent"]
+
+[tool.coverage.report]
+show_missing = true
+ignore_errors = true
+fail_under = 95
+exclude_lines = [
+    "noqa",
+    "pragma: no cover",
+    "pass",
+    "\\.\\.\\.",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "def __repr__",
+    "def __str__",
+    "if cls\\.debug",
+    "if settings\\.DEBUG",
+    "if (typing\\.)?TYPE_CHECKING:",
+]
+
+[tool.coverage.paths]
+source = [
+    "./"
+]
+
+[tool.coverage.html]
+directory = "./test-results/coverage_html/"
+
+[tool.coverage.xml]
+output = "./test-results/coverage.xml"
+
+[tool.coverage.json]
+output = "./test-results/coverage.json"
