@@ -1,7 +1,13 @@
-from typing import Any, List
+import typing
+
+from clinner.console import console, error_console
+
+T = typing.TypeVar("T")
+
+__all__ = ["bool", "choices", "default"]
 
 
-def bool_input(input_str: str) -> str:
+def bool(input_str: str) -> bool:
     """
     Prints a message asking for a yes/no response, otherwise it will continue asking.
 
@@ -11,18 +17,18 @@ def bool_input(input_str: str) -> str:
     input_str = input_str + " [Y|n] "
     result = None
     while result is None:
-        response = input(input_str)
+        response = console.input(input_str)
         if response in ("", "y", "Y"):
             result = True
         elif response in ("n", "N"):
             result = False
         else:
-            print("Wrong option")
+            error_console.print(":cross_mark:  Wrong option")
 
     return result
 
 
-def choices_input(input_str: str, choices: List[Any]) -> str:
+def choices(input_str: str, choices: typing.List[T]) -> T:
     """
     Prints a message asking for a choice of given values.
 
@@ -35,19 +41,19 @@ def choices_input(input_str: str, choices: List[Any]) -> str:
     result = None
     while result is None:
         try:
-            response = int(input(input_str))
+            response = int(console.input(input_str))
 
             if response in choices.keys():
                 result = choices[response]
             else:
                 raise ValueError
         except ValueError:
-            print("Wrong option")
+            error_console.print(":cross_mark:  Wrong option")
 
     return result
 
 
-def default_input(input_str: str, default: Any = None) -> str:
+def default(input_str: str, default: typing.Any) -> str:
     """
     Prints a message offering a default value.
 
@@ -55,9 +61,4 @@ def default_input(input_str: str, default: Any = None) -> str:
     :param default: Default value.
     :return: User response.
     """
-
-    if default is None:
-        default = ""
-
-    input_str = input_str + " [{}]: ".format(default)
-    return input(input_str) or default
+    return console.input(f"{input_str} [{default!s}]: ") or default

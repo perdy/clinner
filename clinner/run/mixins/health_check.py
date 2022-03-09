@@ -49,7 +49,7 @@ class HealthCheckMixin(metaclass=ABCMeta):
                 if not self.health_check():
                     self.cli.logger.warning("Health check failed, retrying ({}/{})".format(i + 1, self.args.retry))
                     time.sleep(timeout)
-                    timeout *= 2.
+                    timeout *= 2.0
                 else:
                     # Healthcheck successful
                     health = True
